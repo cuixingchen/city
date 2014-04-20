@@ -13,6 +13,10 @@ import io.netty.handler.codec.ByteToMessageCodec;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
+import java.io.IOException;
+import java.util.Properties;
+import java.util.ResourceBundle;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +24,9 @@ import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 
 /**
  * tcp客戶端
+ * 
  * @author Steven
- *
+ * 
  */
 public class TcpClient extends Thread {
 
@@ -50,7 +55,22 @@ public class TcpClient extends Thread {
 	@Override
 	public void run() {
 		EventLoopGroup group = new NioEventLoopGroup();
+		// String path =
+		// TcpClient.class.getResource("/tcp.properties").getPath();
+		Properties p = new Properties();
 		try {
+			p.load(TcpClient.class.getResourceAsStream("/tcp.properties"));
+
+			this.hostname = p.getProperty("tcp.host");
+			logger.info("run() - String hostname={}", hostname); //$NON-NLS-1$
+
+			this.hostport = Integer.parseInt(p.getProperty("tcp.port"));
+
+			String loglevelname = p.getProperty("tcp.loglevel").toUpperCase();
+			logger.info("run() - String loglevelname={}", loglevelname); //$NON-NLS-1$
+
+			this.loglevel = LogLevel.valueOf(loglevelname);
+
 			Bootstrap b = new Bootstrap();
 			b.group(group).channel(NioSocketChannel.class)
 					.handler(new ChannelInitializer<SocketChannel>() {
@@ -66,7 +86,7 @@ public class TcpClient extends Thread {
 
 			b.connect(hostname, hostport).sync().channel().closeFuture().sync();
 
-		} catch (InterruptedException e) {
+		} catch (InterruptedException | IOException e) {
 			logger.error("init(String, int, String, String)", e); //$NON-NLS-1$
 		} finally {
 			group.shutdownGracefully();
