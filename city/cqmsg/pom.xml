@@ -21,5 +21,10 @@
 			<artifactId>nettyutil</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.hdsx.taxi.woxing</groupId>
+			<artifactId>bean</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>

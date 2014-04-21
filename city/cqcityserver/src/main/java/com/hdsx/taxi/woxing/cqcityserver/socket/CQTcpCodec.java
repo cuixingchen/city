@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageCodec;
 
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -20,8 +22,17 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 	private static final Logger logger = LoggerFactory
 			.getLogger(CQTcpCodec.class);
 
-	@Override
-	protected void decode(ChannelHandlerContext ctx, ByteBuf buffer,
+	private static final byte FLAG = 0x7e;
+	ByteBuffer bf = ByteBuffer.allocate(1024);
+
+	/**
+	 * 
+	 * @param ctx
+	 * @param buffer
+	 * @param out
+	 * @throws Exception
+	 */
+	protected void decode1(ChannelHandlerContext ctx, ByteBuf buffer,
 			List<Object> out) throws Exception {
 		if (!searchHead(buffer))
 			return;
@@ -42,7 +53,7 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 
 		AbsMsg msg = MsgFactory.genMsg(head.getId());
 
-		if (msg.frombytes(msgbuffer.array())) {
+		if (msg.fromBytes(msgbuffer.array())) {
 			logger.debug("收到消息:" + msg.toString());
 			out.add(msg);
 		}
@@ -53,7 +64,7 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 			throws Exception {
 
 		logger.debug("开始发送消息：" + msg.toString());
-		byte[] bt = msg.tobytes();
+		byte[] bt = msg.toBytes();
 		out.writeBytes(bt);
 	}
 
@@ -70,6 +81,32 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
+			List<Object> out) throws Exception {
+
+		while (in.readableBytes() > 0) {
+			byte b = in.readByte();
+			if (b != FLAG) {
+				bf.put(in.readByte());
+			} else {
+				if (bf.position() > 0) {
+
+					byte[] bytes = new byte[bf.position()];
+					bf.position(0);
+					bf.get(bytes);
+					AbsMsg msg = MsgFactory.genMsg(bytes);
+					logger.info("收到消息:" + msg.toString());
+					if (msg != null) {
+						out.add(msg);
+					}
+					bf.clear();
+				}
+			}
+		}
+
 	}
 
 }

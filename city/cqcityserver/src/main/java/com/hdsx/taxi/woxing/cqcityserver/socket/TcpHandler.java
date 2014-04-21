@@ -25,8 +25,9 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 			if (msg.getClass().isInstance(AbsMsg.class)) {
 				AbsMsg m = (AbsMsg) msg;
 				IHandler handler = HandlerFactory.getHandler(m);
-				if (handler != null)
-					handler.doHandle(m);
+				if (handler != null) {
+					// TODO 完成消息的匹配 handler.doHandle(m);
+				}
 			}
 		} finally {
 			ReferenceCountUtil.release(msg);
