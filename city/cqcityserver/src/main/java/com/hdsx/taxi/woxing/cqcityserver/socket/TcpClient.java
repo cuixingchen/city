@@ -23,6 +23,7 @@ import com.hdsx.taxi.woxing.cqcityserver.socket.thread.HeartBeatThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReConnectedThread;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 
 /**
@@ -101,8 +102,7 @@ public class TcpClient extends Thread {
 
 			this.reconnectdealy = Integer.parseInt(p
 					.getProperty("tcp.reconnectdealy"));
-			
-			
+
 			Bootstrap b = new Bootstrap();
 			b.group(group).channel(NioSocketChannel.class)
 					.handler(new ChannelInitializer<SocketChannel>() {
@@ -174,6 +174,21 @@ public class TcpClient extends Thread {
 		new ReConnectedThread().run(this.reconnectdealy * 1000,
 				this.reconnectdealy * 1000);
 
+	}
+
+	/**
+	 * 发送收到消息的通用应答
+	 * 
+	 * @param msg
+	 */
+	public void sendAnsworMsg(AbsMsg msg) {
+		Msg0003 mout = new Msg0003();
+		mout.setMsgid(msg.getHeader().getMsgid());
+		mout.getHeader().setSn(msg.getHeader().getSn());
+		if (ch != null && ch.isOpen()) {
+			ChannelFuture cf = ch.write(mout);
+			logger.debug("cf - :" + cf.toString() + cf.isSuccess());
+		}
 	}
 
 }

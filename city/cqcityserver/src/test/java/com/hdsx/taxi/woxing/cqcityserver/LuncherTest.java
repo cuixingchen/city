@@ -29,5 +29,9 @@ public class LuncherTest {
 			System.out.println(Integer.toHexString(bb));
 		}
 
+		System.out.println(Integer.MAX_VALUE);
+		long a = 360 * 60 * 10000;
+		System.out.println(a);
+
 	}
 }

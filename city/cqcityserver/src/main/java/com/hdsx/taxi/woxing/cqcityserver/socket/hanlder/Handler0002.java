@@ -29,11 +29,7 @@ public class Handler0002 implements IHandler {
 	public void doHandle(IMsg m) {
 		if (m.getClass().isInstance(Msg0002.class)) {
 			Msg0002 msg = (Msg0002) m;
-			Msg0003 mout = new Msg0003();
-			mout.setMsgid(msg.getHeader().getMsgid());
-
-			TcpClient.getInstance().sendWithoutCache(mout);
-
+			TcpClient.getInstance().sendAnsworMsg(msg);
 		}
 
 	}

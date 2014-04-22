@@ -10,6 +10,7 @@
 		<module>cqcityserver</module>
     <module>nettyutil</module>
     <module>cqmsg</module>
+    <module>location</module>
   </modules>
 	<dependencies>
 		<dependency>
