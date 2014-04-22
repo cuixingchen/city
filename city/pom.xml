@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hdsx.taxi.woxing</groupId>
 	<artifactId>city</artifactId>
@@ -8,10 +9,10 @@
 	<modules>
 		<module>cityservice</module>
 		<module>cqcityserver</module>
-    <module>nettyutil</module>
-    <module>cqmsg</module>
-    <module>location</module>
-  </modules>
+		<module>nettyutil</module>
+		<module>cqmsg</module>
+		<module>location</module>
+	</modules>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -59,6 +60,7 @@
 		<logback.version>1.1.2</logback.version>
 		<ehcache.version>2.8.1</ehcache.version>
 		<netty.version>4.0.18.Final</netty.version>
+		<gt-api.version>8.7</gt-api.version>
 	</properties>
 	<build>
 		<plugins>
