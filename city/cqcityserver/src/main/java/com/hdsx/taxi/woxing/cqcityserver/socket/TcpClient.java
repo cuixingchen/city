@@ -19,11 +19,13 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.cqcityserver.socket.thread.CalTaxiIndexThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.HeartBeatThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReConnectedThread;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
+import com.hdsx.taxi.woxing.location.util.Config;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 
 /**
@@ -173,6 +175,8 @@ public class TcpClient extends Thread {
 		hb.run(this.heartbeatdelay * 1000, this.heartbeatdelay * 1000);
 		new ReConnectedThread().run(this.reconnectdealy * 1000,
 				this.reconnectdealy * 1000);
+		
+		new CalTaxiIndexThread().run();
 
 	}
 
