@@ -1,4 +1,4 @@
-package com.hdsx.taxi.woxing.nettyutil;
+package com.hdsx.taxi.woxing.cqcityserver.socket;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -15,11 +15,14 @@ import io.netty.handler.logging.LoggingHandler;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.cqcityserver.socket.thread.HeartBeatThread;
+import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReConnectedThread;
+import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 
 /**
@@ -45,12 +48,28 @@ public class TcpClient extends Thread {
 			.getLogger(TcpClient.class);
 	MsgCache msgcanche;
 	Channel ch;
-	boolean isLogined = false;
 	String hostname; // 服务器地址
 	int hostport; // 服务器端口
+
+	byte thirdflag; // 第三方登陆标识
+	String vss;// 第三方接入vss
+	int heartbeatdelay = 60;// 心跳间隔
+	private long reconnectdealy = 60;
+	boolean logined = false; // 是否登陆成功
+
+	public boolean isConnected() {
+		return connected;
+	}
+
+	public void setConnected(boolean connected) {
+		this.connected = connected;
+	}
+
 	ByteToMessageCodec<IMsg> codec;
 	ChannelInboundHandlerAdapter handler;
 	LogLevel loglevel;
+
+	boolean connected = false;
 
 	@Override
 	public void run() {
@@ -71,6 +90,19 @@ public class TcpClient extends Thread {
 
 			this.loglevel = LogLevel.valueOf(loglevelname);
 
+			this.thirdflag = Byte.parseByte(p.getProperty("tcp.thirdpartflag"));
+			AbsMsg.THIRD_PART_FLAG = this.thirdflag; // 第三方接入平台标识
+
+			this.vss = p.getProperty("tcp.vss"); // 第三方VSS
+			Msg0001.VSS = this.vss;
+
+			this.heartbeatdelay = Integer.parseInt(p
+					.getProperty("tcp.heartbeatdelay"));
+
+			this.reconnectdealy = Integer.parseInt(p
+					.getProperty("tcp.reconnectdealy"));
+			
+			
 			Bootstrap b = new Bootstrap();
 			b.group(group).channel(NioSocketChannel.class)
 					.handler(new ChannelInitializer<SocketChannel>() {
@@ -100,7 +132,7 @@ public class TcpClient extends Thread {
 	 */
 	public void send(IMsg m) {
 		// try {
-		if (isLogined) {
+		if (this.logined) {
 			if (ch != null && ch.isOpen()) {
 				msgcanche.put(m);
 				ChannelFuture cf = ch.write(m);
@@ -115,13 +147,32 @@ public class TcpClient extends Thread {
 	 * @param m
 	 */
 	public void sendWithoutCache(IMsg m) {
-		if (isLogined) {
+		if (logined) {
 			if (ch != null && ch.isOpen()) {
 				ChannelFuture cf = ch.write(m);
 				logger.debug("cf - :" + cf.toString() + cf.isSuccess());
 
 			}
 		}
+
+	}
+
+	public boolean isLogined() {
+		return logined;
+	}
+
+	public void setLogined(boolean logined) {
+		this.logined = logined;
+	}
+
+	/**
+	 * 登陆成功后启动各种线程
+	 */
+	public void startThreads() {
+		HeartBeatThread hb = new HeartBeatThread();
+		hb.run(this.heartbeatdelay * 1000, this.heartbeatdelay * 1000);
+		new ReConnectedThread().run(this.reconnectdealy * 1000,
+				this.reconnectdealy * 1000);
 
 	}
 

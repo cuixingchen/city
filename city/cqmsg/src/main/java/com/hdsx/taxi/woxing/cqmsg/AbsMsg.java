@@ -2,6 +2,8 @@ package com.hdsx.taxi.woxing.cqmsg;
 
 import java.nio.ByteBuffer;
 
+import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
+
 /**
  * 
  * ***************************************************************************** <br/>
@@ -15,8 +17,10 @@ import java.nio.ByteBuffer;
  * 
  ***************************************************************************** 
  */
-public abstract class AbsMsg  {
+public abstract class AbsMsg implements IMsg {
 
+	static int curSn = Integer.MIN_VALUE; // 自动增加的消息流水号
+	public static byte THIRD_PART_FLAG = 0; // 第三方接入平台标识
 	/**
 	 * 
 	 */
@@ -27,6 +31,8 @@ public abstract class AbsMsg  {
 	public AbsMsg() {
 		this.head = new MsgHeader();
 		this.head.setMsgid((short) getMsgID());
+		this.head.setSn(curSn++);
+		this.head.setFlag(THIRD_PART_FLAG);
 	}
 
 	/**
@@ -45,9 +51,6 @@ public abstract class AbsMsg  {
 		this.head.setBodylen((short) body.length);
 		byte[] head = this.head.tobytes();
 
-		body = encode(body);
-		head = encode(head);
-
 		byte xor = 0;
 
 		for (byte b : head) {
@@ -57,10 +60,15 @@ public abstract class AbsMsg  {
 		for (byte b : body) {
 			xor ^= b;
 		}
+
+		body = encode(body);
+		head = encode(head);
+		byte[] xorbytes = encode(new byte[] { xor });
+
 		buffer.put(MsgHeader.MSG_HEAD_FLAG);
 		buffer.put(head);
 		buffer.put(body);
-		buffer.put(xor);
+		buffer.put(xorbytes);
 		buffer.put(MsgHeader.MSG_HEAD_FLAG);
 		byte[] result = new byte[buffer.position()];
 		buffer.position(0);
@@ -102,15 +110,13 @@ public abstract class AbsMsg  {
 	 * @param b
 	 */
 	public boolean fromBytes(byte[] b) {
-
+		b = decode(b);
 		byte xor = 0;
-		for (int i = 0; i < b.length - 2; i++) {
+		for (int i = 0; i < b.length - 1; i++) {
 			xor ^= b[i];
 		}
 		if (xor != b[b.length - 1])
 			return false;
-
-		b = decode(b);
 
 		this.head = new MsgHeader();
 		if (!this.head.frombytes(b))
@@ -155,18 +161,6 @@ public abstract class AbsMsg  {
 	 * @return
 	 */
 	protected abstract int getMsgID();
-
-	/**
-	 * 
-	 * 方法名：getBodylen <br/>
-	 * 编写人：谢广泉<br/>
-	 * 日期: 2014年4月11日<br/>
-	 * 功能描述：<br/>
-	 * <b>消息体长度</b>
-	 * 
-	 * @return
-	 */
-	protected abstract int getBodylen();
 
 	/**
 	 * 

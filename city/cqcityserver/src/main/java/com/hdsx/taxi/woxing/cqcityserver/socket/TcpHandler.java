@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
 
 /**
@@ -26,12 +27,29 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 				AbsMsg m = (AbsMsg) msg;
 				IHandler handler = HandlerFactory.getHandler(m);
 				if (handler != null) {
-					// TODO 完成消息的匹配 handler.doHandle(m);
+					handler.doHandle(m);
 				}
 			}
 		} finally {
 			ReferenceCountUtil.release(msg);
 		}
+	}
+
+	@Override
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
+
+		super.channelActive(ctx);
+		TcpClient.getInstance().setConnected(true);
+		Msg0001 loginmsg = new Msg0001();
+		ctx.channel().write(loginmsg);
+		// TcpClient.getInstance().sendWithoutCache(loginmsg);
+
+	}
+
+	@Override
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		super.channelInactive(ctx);
+		TcpClient.getInstance().setConnected(false);
 	}
 
 	/**

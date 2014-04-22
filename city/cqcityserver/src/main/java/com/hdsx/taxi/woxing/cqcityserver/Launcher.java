@@ -1,17 +1,14 @@
 package com.hdsx.taxi.woxing.cqcityserver;
 
-import java.io.IOException;
 import java.net.URL;
+
+import javax.jms.MessageListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jms.JMSException;
-import javax.jms.MessageListener;
-
 import com.hdsx.taxi.woxing.cqcityserver.mq.CQMQMessageListener;
-import com.hdsx.taxi.woxing.mqutil.MQService;
-import com.hdsx.taxi.woxing.nettyutil.TcpClient;
+import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 
 /**
  * 运行程序的住

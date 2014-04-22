@@ -2,8 +2,12 @@ package com.hdsx.taxi.woxing.cqmsg.msg;
 
 import java.nio.ByteBuffer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.Converter;
+import com.hdsx.taxi.woxing.cqmsg.FindEndFlag;
 import com.hdsx.taxi.woxing.cqmsg.MessageID;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.OrderInfo;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.PassengerInfo;
@@ -20,12 +24,11 @@ import com.hdsx.taxi.woxing.cqmsg.msg.pojo.PassengerInfo;
  * 
  ***************************************************************************** 
  */
-public class Msg0x1001 extends AbsMsg {
-
+public class Msg1001 extends AbsMsg {
 	/**
-	 * 
+	 * Logger for this class
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LoggerFactory.getLogger(Msg1001.class);
 
 	private OrderInfo order;
 	private int radius;
@@ -35,19 +38,6 @@ public class Msg0x1001 extends AbsMsg {
 		return MessageID.msg0x1001;
 	}
 
-	@Override
-	protected int getBodylen() {
-		int dl = Converter
-				.getBytes(order.getPassengerInfo().getPassengerName()).length
-				+ 1
-				+ 1
-				+ Converter.getBytes(order.getPassengerInfo()
-						.getPassengerPhone()).length + 1;
-		int ol = 1 + 2 + 7 + Converter.getBytes(order.getAddress()).length + 1
-				+ 4 + 4 + Converter.getBytes(order.getDestination()).length + 1
-				+ 4 + 4 + Converter.getBytes(order.getRemark()).length + 1;
-		return dl + ol + 4;
-	}
 
 	@Override
 	protected byte[] bodytoBytes() {
@@ -103,57 +93,65 @@ public class Msg0x1001 extends AbsMsg {
 
 	@Override
 	protected boolean bodyfrombytes(byte[] b) {
-		return false;
 
-//		ByteBuffer bf = ByteBuffer.wrap(b);
-//		int offset = this.head.getBodylen();
-//
-//		order = new OrderInfo();
-//		// being 司机
-//		PassengerInfo pi = new PassengerInfo();
-//		int stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
-//		pi.setPassengerName(Converter.toGBKString(b, offset, stringEndIdx
-//				- offset));
-//		offset = stringEndIdx;
-//		offset += 1;
-//		pi.setPassengerSex(bf.get(offset));
-//		offset += 1;
-//		stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
-//		pi.setPassengerPhone(Converter.toGBKString(b, offset, stringEndIdx
-//				- offset));
-//		offset = stringEndIdx;
-//		offset += 1;
-//		order.setPassengerInfo(pi);
-//		// end 司机
-//		order.setOrderType(bf.get(offset));
-//		offset += 1;
-//		order.setTips(bf.getShort(offset));
-//		offset += 2;
-//		order.setUseTime(Converter.bcd2Str(b, offset, 7));
-//		offset += 7;
-//		stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
-//		order.setAddress(Converter
-//				.toGBKString(b, offset, stringEndIdx - offset));
-//		offset = stringEndIdx;
-//		offset += 1;
-//		order.setUseLng(Converter.toUInt32(b, offset));
-//		offset += 4;
-//		order.setUseLat(Converter.toUInt32(b, offset));
-//		offset += 4;
-//		stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
-//		order.setDestination(Converter.toGBKString(b, offset, stringEndIdx
-//				- offset));
-//		offset = stringEndIdx;
-//		offset += 1;
-//		order.setDestLng(Converter.toUInt32(b, offset));
-//		offset += 4;
-//		order.setDestLat(Converter.toUInt32(b, offset));
-//		offset += 4;
-//		stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
-//		order.setRemark(Converter.toGBKString(b, offset, stringEndIdx - offset));
-//		offset = stringEndIdx;
-//		offset += 1;
-//		radius = bf.getInt(offset);
+		try {
+			ByteBuffer bf = ByteBuffer.wrap(b);
+			int offset = this.head.getLength();
+
+			order = new OrderInfo();
+			// being 司机
+			PassengerInfo pi = new PassengerInfo();
+			int stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
+			pi.setPassengerName(Converter.toGBKString(b, offset, stringEndIdx
+					- offset));
+			offset = stringEndIdx;
+			offset += 1;
+			pi.setPassengerSex(bf.get(offset));
+			offset += 1;
+			stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
+			pi.setPassengerPhone(Converter.toGBKString(b, offset, stringEndIdx
+					- offset));
+			offset = stringEndIdx;
+			offset += 1;
+			order.setPassengerInfo(pi);
+			// end 司机
+			order.setOrderType(bf.get(offset));
+			offset += 1;
+			order.setTips(bf.getShort(offset));
+			offset += 2;
+			order.setUseTime(Converter.bcd2Str(b, offset, 7));
+			offset += 7;
+			stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
+			order.setAddress(Converter.toGBKString(b, offset, stringEndIdx
+					- offset));
+			offset = stringEndIdx;
+			offset += 1;
+			order.setUseLng(Converter.toUInt32(b, offset));
+			offset += 4;
+			order.setUseLat(Converter.toUInt32(b, offset));
+			offset += 4;
+			stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
+			order.setDestination(Converter.toGBKString(b, offset, stringEndIdx
+					- offset));
+			offset = stringEndIdx;
+			offset += 1;
+			order.setDestLng(Converter.toUInt32(b, offset));
+			offset += 4;
+			order.setDestLat(Converter.toUInt32(b, offset));
+			offset += 4;
+			stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
+			order.setRemark(Converter.toGBKString(b, offset, stringEndIdx
+					- offset));
+			offset = stringEndIdx;
+			offset += 1;
+			radius = bf.getInt(offset);
+
+			return true;
+		} catch (Exception ex) {
+
+			logger.error("解析消息体失败", ex);
+		}
+		return false;
 
 	}
 

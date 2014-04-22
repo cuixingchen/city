@@ -34,11 +34,11 @@ public class MsgHeader implements Serializable {
 	private short msgid; // 消息ID
 	private int sn; // 消息流水号
 	private byte flag; // 第三方接入平台标识
-	private long orderid; // 订单号
+	private long orderid = 0; // 订单号
 	private short bodylen; // 剩余消息总长度
 
 	public final static byte MSG_HEAD_FLAG = 0x7e; // 标识位
-	public final static byte MSG_HEAD_LEN = 1 + 2 + 4 + 1 + 4 + 2;
+	public final static byte MSG_HEAD_LEN = 2 + 4 + 1 + 4 + 2;
 
 	// 0x7e
 	/**
@@ -85,7 +85,7 @@ public class MsgHeader implements Serializable {
 			return true;
 		} catch (Exception ex) {
 
-			logger.error("解析消息头失败", ex);			
+			logger.error("解析消息头失败", ex);
 		}
 		return false;
 
@@ -105,8 +105,12 @@ public class MsgHeader implements Serializable {
 		return 2 + 4 + 1 + 4 + 2;
 	}
 
-	public int getMsgid() {
+	public short getMsgid() {
 		return msgid;
+	}
+
+	public void setMsgid(short msgid) {
+		this.msgid = msgid;
 	}
 
 	public int getSn() {
@@ -133,10 +137,6 @@ public class MsgHeader implements Serializable {
 		this.orderid = orderid;
 	}
 
-	public void setMsgid(short msgid) {
-		this.msgid = msgid;
-	}
-
 	public short getBodylen() {
 		return bodylen;
 	}
@@ -144,5 +144,7 @@ public class MsgHeader implements Serializable {
 	public void setBodylen(short bodylen) {
 		this.bodylen = bodylen;
 	}
+
+
 
 }

@@ -7,7 +7,6 @@ package com.hdsx.taxi.woxing.nettyutil.msg;
  *
  */
 public interface IMsg {
-	byte[] tobytes();  
-	int getLen();
-	boolean frombytes(byte[] b);
+	byte[] toBytes();  
+	boolean fromBytes(byte[] b);
 }

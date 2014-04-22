@@ -1,0 +1,156 @@
+package com.hdsx.taxi.woxing.cqmsg.msg;
+
+import java.nio.ByteBuffer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
+import com.hdsx.taxi.woxing.cqmsg.Converter;
+import com.hdsx.taxi.woxing.cqmsg.MessageID;
+
+/**
+ * *****************************************************************************
+ * <br/><b>类名:Msg0x0001</b> <br/>
+ * 编写人: 谢广泉 <br/>
+ * 日期: 2014年4月14日<br/>
+ * 功能：6.2.1	0x2001 抢单信息<br/>
+ * 
+ * @author gq
+ * @version 1.0.0
+ * 
+ *****************************************************************************
+ */
+public class Msg2001 extends AbsMsg{
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(Msg2001.class);
+
+	private String carNumber ; // 车牌号
+	private String phone ; // 手机号
+	private String certificate ; // 驾驶员的从业资格证号
+	private String bcdtime ; // 抢单时间 yyyymmddhhnnss 
+	private int lng ;  // 经度
+	private int lat ; // 纬度
+	
+	@Override
+	protected int getMsgID() {
+		return MessageID.msg0x2001;
+	}
+
+//	@Override
+//	protected int getBodylen() {
+//		return 8+11+19+7+4+4;
+//	}
+
+	@Override
+	protected byte[] bodytoBytes() {
+		ByteBuffer b = ByteBuffer.allocate(1024);  // 1 kb 缓冲区
+		
+		ByteBuffer b_carNumber = ByteBuffer.allocate(8);
+		b.put(b_carNumber.put(Converter.getBytes(carNumber)).array());
+		
+		ByteBuffer b_phone = ByteBuffer.allocate(11);
+		b.put(b_phone.put(Converter.getBytes(phone)).array());
+		
+		ByteBuffer b_certificate = ByteBuffer.allocate(19);
+		b.put(b_certificate.put(Converter.getBytes(certificate)).array());
+		
+		b.put(Converter.str2BCD(bcdtime));
+		
+		b.put(Converter.unSigned32LongToBigBytes(lng));
+		b.put(Converter.unSigned32LongToBigBytes(lat));
+		
+		
+		// 把当前 buffer 内容转换成 byte []
+		byte[] result = new byte[b.position()];
+		b.position(0);
+		b.get(result);
+		// 返回 新的 byte [] 
+		return result;
+	}
+
+	@Override
+	protected boolean bodyfrombytes(byte[] b) {
+		
+		try {
+		
+		ByteBuffer bf = ByteBuffer.wrap(b);
+		int offset = this.head.getLength() ;
+
+		this.carNumber = Converter.toGBKString(bf.array(),offset,8);
+		offset += 8 ;
+		
+		this.phone = Converter.toGBKString(b,offset,11);
+		offset += 11 ;
+		
+		this.certificate = Converter.toGBKString(b,offset,19);
+		offset += 19 ;
+		
+		bcdtime = Converter.bcd2Str(b, offset, 7);
+		offset += 7 ;
+		
+		lng = Converter.toUInt32(b, offset);
+		offset += 4 ;
+		
+		lat = Converter.toUInt32(b, offset);
+		
+		return true;
+		} catch (Exception ex) {
+
+			logger.error("解析消息体失败", ex);			
+		}
+		return false;
+		
+	}
+
+	public String getCarNumber() {
+		return carNumber;
+	}
+
+	public void setCarNumber(String carNumber) {
+		this.carNumber = carNumber;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getCertificate() {
+		return certificate;
+	}
+
+	public void setCertificate(String certificate) {
+		this.certificate = certificate;
+	}
+
+	public String getBcdtime() {
+		return bcdtime;
+	}
+
+	public void setBcdtime(String bcdtime) {
+		this.bcdtime = bcdtime;
+	}
+
+	public int getLng() {
+		return lng;
+	}
+
+	public void setLng(int lng) {
+		this.lng = lng;
+	}
+
+	public int getLat() {
+		return lat;
+	}
+
+	public void setLat(int lat) {
+		this.lat = lat;
+	}
+
+}
