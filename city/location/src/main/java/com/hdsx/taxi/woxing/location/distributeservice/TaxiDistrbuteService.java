@@ -33,7 +33,8 @@ public class TaxiDistrbuteService implements ITaxiDistrbuteService {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(TaxiDistrbuteService.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(TaxiDistrbuteService.class);
 
 	static TaxiDistrbuteService obj;
 	double xmin, ymin, xmax, ymax, cell;
@@ -145,6 +146,8 @@ public class TaxiDistrbuteService implements ITaxiDistrbuteService {
 	 */
 
 	public void update(CarInfo car) {
+		if (!Config.TAXI_DISTRIBUTE_ENABLED)
+			return;
 		if (isIniting)
 			return;
 		// Thread thread = new Thread() {

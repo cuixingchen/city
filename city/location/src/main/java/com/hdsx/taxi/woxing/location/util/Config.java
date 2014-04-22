@@ -18,10 +18,7 @@ public class Config {
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(Config.class);
 
-	/**
-	 * Logger for this class
-	 */
-
+	public static boolean TAXI_DISTRIBUTE_ENABLED = false;
 	public static boolean TAXI_DISTRIBUTE_REDUCED = false;
 
 	public static boolean ISGENERATETIFF = false; // 是否生成tiff
@@ -99,6 +96,8 @@ public class Config {
 			TAXI_DISTRIBUTE_REDUCED = Boolean.parseBoolean(prop
 					.getProperty("cardistribute.isreduce"));
 
+			TAXI_DISTRIBUTE_ENABLED = Boolean.parseBoolean(prop
+					.getProperty("cardistribute.enabled"));
 			Constants.getInstance().setIsdebug(
 					Boolean.parseBoolean(prop.getProperty("debug.isdebug")));
 			Constants.getInstance()
