@@ -1,10 +1,13 @@
 package com.hdsx.taxi.woxing.cqmsg.msg;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
+import com.hdsx.taxi.woxing.cqmsg.Converter;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.DriverInfo;
+import com.hdsx.taxi.woxing.cqmsg.msg.pojo.TaxiPointInfo;
 
 /**
  * 车辆位置同步信息
@@ -14,7 +17,7 @@ import com.hdsx.taxi.woxing.cqmsg.msg.pojo.DriverInfo;
  */
 public class Msg2010 extends AbsMsg {
 
-	List<TaxiInfo> list = new ArrayList<>();
+	List<TaxiPointInfo> list = new ArrayList<>();
 
 	@Override
 	protected int getMsgID() {
@@ -22,61 +25,117 @@ public class Msg2010 extends AbsMsg {
 		return 0x2010;
 	}
 
-	@Override
-	protected byte[] bodytoBytes() {
-		// TODO 完成车辆位置同步信息
-		return null;
-	}
-
-	public List<TaxiInfo> getList() {
+	public List<TaxiPointInfo> getList() {
 		return list;
 	}
 
-	public void setList(List<TaxiInfo> list) {
+	public void setList(List<TaxiPointInfo> list) {
 		this.list = list;
 	}
 
 	@Override
-	protected boolean bodyfrombytes(byte[] b) {
-		// TODO 完成车辆位置同步信息
-		return false;
+	protected byte[] bodytoBytes() {
+		ByteBuffer b = ByteBuffer.allocate(1024); // 1 kb 缓冲区
+
+		for (TaxiPointInfo cp : list) {
+
+			// begin 司机
+
+			ByteBuffer b_name = ByteBuffer.allocate(16);
+			b_name.put(Converter.getBytes(cp.getDriver().getDriverName()));
+			b.put(b_name.array());
+
+			ByteBuffer b_company = ByteBuffer.allocate(16);
+			b_company.put(Converter.getBytes(cp.getDriver().getCompany()));
+			b.put(b_company.array());
+
+			ByteBuffer b_phone = ByteBuffer.allocate(11);
+			b_phone.put(Converter.getBytes(cp.getDriver().getDriverPhone()));
+			b.put(b_phone.array());
+
+			ByteBuffer b_serial = ByteBuffer.allocate(19);
+			b_serial.put(Converter.getBytes(cp.getDriver().getDriverSerial()));
+			b.put(b_serial.array());
+
+			b.put(cp.getDriver().getCreditLevel());
+
+			ByteBuffer b_number = ByteBuffer.allocate(8);
+			b_number.put(Converter.getBytes(cp.getDriver().getLicenseNumber()));
+			b.put(b_number.array());
+
+			// end 司机信息
+
+			b.put(Converter.unSigned32LongToBigBytes(cp.getLon()));
+			b.put(Converter.unSigned32LongToBigBytes(cp.getLat()));
+
+			b.put(cp.getState());
+		}
+
+		// 把当前 buffer 内容转换成 byte []
+		byte[] result = new byte[b.position()];
+		b.position(0);
+		b.get(result);
+		// 返回 新的 byte []
+		return result;
 	}
 
-	public class TaxiInfo {
-		DriverInfo drirver = new DriverInfo();
-		long lon, lat;
-		byte carstate;
+	@Override
+	protected boolean bodyfrombytes(byte[] b) {
 
-		public byte getCarstate() {
-			return carstate;
-		}
+		try {
 
-		public void setCarstate(byte carstate) {
-			this.carstate = carstate;
-		}
+			ByteBuffer bf = ByteBuffer.wrap(b);
+			int offset = this.head.getLength();
 
-		public DriverInfo getDrirver() {
-			return drirver;
-		}
+			list = new ArrayList<TaxiPointInfo>();
 
-		public void setDrirver(DriverInfo drirver) {
-			this.drirver = drirver;
-		}
+			System.out.println(b.length / 80);
 
-		public long getLon() {
-			return lon;
-		}
+			for (int i = 0; i < b.length / 80; i++) {
 
-		public void setLon(long lon) {
-			this.lon = lon;
-		}
+				TaxiPointInfo cp = new TaxiPointInfo();
 
-		public long getLat() {
-			return lat;
-		}
+				DriverInfo di = new DriverInfo();
 
-		public void setLat(long lat) {
-			this.lat = lat;
+				di.setDriverName(Converter.toGBKString(b, offset, 16));
+				offset += 16;
+
+				di.setCompany(Converter.toGBKString(b, offset, 16));
+				offset += 16;
+
+				di.setDriverPhone(Converter.toGBKString(b, offset, 11));
+				offset += 11;
+
+				di.setDriverSerial(Converter.toGBKString(b, offset, 19));
+				offset += 19;
+
+				di.setCreditLevel(bf.get(offset));
+				offset += 1;
+
+				di.setLicenseNumber(Converter.toGBKString(b, offset, 8));
+				offset += 8;
+
+				cp.setDriver(di);
+
+				cp.setLon(Converter.toUInt32(b, offset));
+				offset += 4;
+
+				cp.setLat(Converter.toUInt32(b, offset));
+				offset += 4;
+
+				cp.setState(bf.get(offset));
+				offset += 1;
+
+				list.add(cp);
+
+			}
+
+			return true;
+		} catch (Exception ex) {
+
+			ex.getStackTrace();
 		}
+		return false;
+
 	}
 }
