@@ -61,6 +61,10 @@ public class OrderService {
 
 	public void put(Msg1001 msg) {
 
+		// OrderObject o = new OrderObject();
+		// o.setOrder(msg.getOrder());
+		// this.orderpool.put(new Element(msg.getOrder().getOrderid(), o));
+
 	}
 
 	/**
@@ -85,7 +89,7 @@ public class OrderService {
 
 		this.orderpool.put(new Element(oi.getOrderid(), oi)); // 将订单信息存入缓存
 
-		// 发送订单号变更消息到城市中心
+		// 发送订单号变更消息到总中心
 		MQMsg1008 mqmsg = new MQMsg1008();
 		mqmsg.setOldid(orderid_old);
 		mqmsg.setNewid(orderid_new);
@@ -285,6 +289,15 @@ public class OrderService {
 			doSucess(o);
 		}
 
+	}
+
+	/**
+	 * 取消订单
+	 * 
+	 * @param orderId
+	 */
+	public void cancel(long orderId) {
+		this.orderpool.remove(orderId);
 	}
 
 	/**
