@@ -1,7 +1,9 @@
 package com.hdsx.taxi.woxing.cqmsg;
 
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg0002;
 
 /**
  * 消息工厂
@@ -12,12 +14,6 @@ import java.util.HashMap;
 public class MsgFactory {
 
 	static ByteBuffer buffer = ByteBuffer.allocate(2);
-	static HashMap<Short, AbsMsg> map = new HashMap<>();
-
-	static {
-		// TODO 初始化消息load
-
-	}
 
 	/**
 	 * 通过消息id生成消息
@@ -37,6 +33,9 @@ public class MsgFactory {
 	 * @return
 	 */
 	public static AbsMsg genMsg(byte[] bytes) {
+		
+		// TODO 完成消息工厂加载  @张阳
+		//TODO 补充遗漏的消息 @谢光泉
 
 		buffer.clear();
 		buffer.put(bytes[0]);
@@ -44,9 +43,11 @@ public class MsgFactory {
 
 		short id = buffer.getShort();
 
-		AbsMsg msg = map.get(id);
-		if (msg.fromBytes(bytes))
-			return msg;
+		if (id == 0x0001)
+			return new Msg0001();
+		else if (id == 0x0002)
+			return new Msg0002();
+
 		return null;
 
 	}
