@@ -40,6 +40,7 @@ public class MessageID {
 	public static final int msg0x2012 = 0x2012;
 	public static final int msg0x2013 = 0x2013;
 	public static final int msg0x2015 = 0x2015;
+	public static final int msg0x2016 = 0x2016;
 	public static final int msg0x2010 = 0x2010;
 	
 	

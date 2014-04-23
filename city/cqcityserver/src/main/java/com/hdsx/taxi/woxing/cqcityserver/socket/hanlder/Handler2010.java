@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.hdsx.taxi.woxing.bean.CarInfo;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2010;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg2010.TaxiInfo;
+import com.hdsx.taxi.woxing.cqmsg.msg.pojo.TaxiPointInfo;
 import com.hdsx.taxi.woxing.location.LocationService;
 import com.hdsx.taxi.woxing.location.distributeservice.TaxiDistrbuteService;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
@@ -33,20 +33,20 @@ public class Handler2010 implements IHandler {
 		if (m.getClass().isInstance(Msg2010.class)) {
 			Msg2010 msg = (Msg2010) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
-			List<TaxiInfo> l = msg.getList();
-			for (TaxiInfo o : l) {
+			List<TaxiPointInfo> l = msg.getList();
+			for (TaxiPointInfo o : l) {
 				CarInfo c = new CarInfo();
-				c.setDriverName(o.getDrirver().getDriverName());
-				c.setCompany(o.getDrirver().getCompany());
-				c.setEmpty(o.getCarstate() == 0x00);
+				c.setDriverName(o.getDriver().getDriverName());
+				c.setCompany(o.getDriver().getCompany());
+				c.setEmpty(o.getState() == 0x00);
 				c.setLat(o.getLat());
 				c.setLon(o.getLon());
-				c.setLisencenumber(o.getDrirver().getLicenseNumber());
-				c.setId(o.getDrirver().getDriverSerial());
-				c.setDriverphone(o.getDrirver().getDriverPhone());
-				c.setDriverid(o.getDrirver().getDriverSerial());
+				c.setLisencenumber(o.getDriver().getLicenseNumber());
+				c.setId(o.getDriver().getDriverSerial());
+				c.setDriverphone(o.getDriver().getDriverPhone());
+				c.setDriverid(o.getDriver().getDriverSerial());
 
-				c.setCreditLevel(getCreditLeveString(o.getDrirver()
+				c.setCreditLevel(getCreditLeveString(o.getDriver()
 						.getCreditLevel()));
 				LocationService.getInstance().update(c);				
 				TaxiDistrbuteService.getInstance().update(c);
