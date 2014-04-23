@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
+import com.hdsx.taxi.woxing.cqcityserver.order.OrderService;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
 import com.hdsx.taxi.woxing.mqutil.MQService;
@@ -11,6 +12,11 @@ import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1001;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
 
+/**
+ * 司机抢单
+ * @author Steven
+ *
+ */
 public class Handler2001 implements IHandler {
 	/**
 	 * Logger for this class
@@ -23,16 +29,20 @@ public class Handler2001 implements IHandler {
 		if (m.getClass().isInstance(Msg2001.class)) {
 			Msg2001 msg = (Msg2001) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
+			OrderService.getInstance().onDriverAnswer(msg);
 
-			MQMsg1001 mqmsg = new MQMsg1001();
-
-			mqmsg.setNumber(msg.getCarNumber());
-			mqmsg.setPhone(msg.getPhone());
-			mqmsg.setDriverid(msg.getCertificate());
-			mqmsg.setTime(msg.getBcdtime());
-			mqmsg.setLat(CoordinateCodec.Coor2Float(msg.getLng()));
-			mqmsg.setLon(CoordinateCodec.Coor2Float(msg.getLat()));
-			MQService.getInstance().sendMsg(mqmsg);
+//			MQMsg1001 mqmsg = new MQMsg1001();
+//
+//			mqmsg.setNumber(msg.getCarNumber());
+//			mqmsg.setPhone(msg.getPhone());
+//			mqmsg.setDriverid(msg.getCertificate());
+//			mqmsg.setTime(msg.getBcdtime());
+//			mqmsg.setLat(CoordinateCodec.Coor2Float(msg.getLng()));
+//			mqmsg.setLon(CoordinateCodec.Coor2Float(msg.getLat()));
+//			MQService.getInstance().sendMsg(mqmsg);
+			
+		
+			
 		}
 
 	}

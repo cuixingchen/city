@@ -25,7 +25,6 @@ import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReConnectedThread;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
-import com.hdsx.taxi.woxing.location.util.Config;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 
 /**
@@ -132,7 +131,7 @@ public class TcpClient extends Thread {
 	 * 
 	 * @param m
 	 */
-	public void send(IMsg m) {
+	public void send(AbsMsg m) {
 		// try {
 		if (this.logined) {
 			if (ch != null && ch.isOpen()) {
@@ -148,7 +147,7 @@ public class TcpClient extends Thread {
 	 * 
 	 * @param m
 	 */
-	public void sendWithoutCache(IMsg m) {
+	public void sendWithoutCache(AbsMsg m) {
 		if (logined) {
 			if (ch != null && ch.isOpen()) {
 				ChannelFuture cf = ch.write(m);

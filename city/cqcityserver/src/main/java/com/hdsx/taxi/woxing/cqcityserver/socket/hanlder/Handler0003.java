@@ -3,8 +3,10 @@ package com.hdsx.taxi.woxing.cqcityserver.socket.hanlder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.cqcityserver.order.OrderService;
 import com.hdsx.taxi.woxing.cqcityserver.socket.MsgCache;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
+import com.hdsx.taxi.woxing.cqmsg.MessageID;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
@@ -26,11 +28,16 @@ public class Handler0003 implements IHandler {
 				return;
 			}
 			if (TcpClient.getInstance().isLogined()) {
+				if (msg.getMsgid() == MessageID.msg0x1001) { // 发送订单的回复需要获取返回的订单号
+					OrderService.getInstance().updateOrderId(msg);
+
+				}
+
 				MsgCache.getInstance().remove(msg);
 			} else {
 				TcpClient.getInstance().setLogined(true);
 				TcpClient.getInstance().startThreads();
-				
+
 			}
 
 		}
