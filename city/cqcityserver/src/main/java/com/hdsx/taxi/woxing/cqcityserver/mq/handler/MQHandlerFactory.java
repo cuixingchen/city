@@ -10,7 +10,7 @@ public class MQHandlerFactory {
 	static HashMap<Integer, IMQMsgHanlder> map;
 	static {
 		map.put(0x0001, new MQMsgHandler0001());
-
+		map.put(0x0001, new MQMsgHandler2001());
 	}
 
 	public static IMQMsgHanlder getHandlder(MQAbsMsg mqmsg) {

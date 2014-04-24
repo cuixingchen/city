@@ -1,0 +1,331 @@
+package com.hdsx.taxi.woxing.cqcityserver.order;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.hdsx.taxi.woxing.bean.CarInfo;
+import com.hdsx.taxi.woxing.bean.util.CacheManagerUtil;
+import com.hdsx.taxi.woxing.cqcityserver.order.util.BidComparator;
+import com.hdsx.taxi.woxing.cqcityserver.order.util.CarDistanceComparator;
+import com.hdsx.taxi.woxing.cqcityserver.socket.MsgCache;
+import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
+import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg1001;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg1003;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg1004;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg1101;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
+import com.hdsx.taxi.woxing.cqmsg.msg.pojo.OrderInfo;
+import com.hdsx.taxi.woxing.location.LocationService;
+import com.hdsx.taxi.woxing.mqutil.MQService;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1001;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1008;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1009;
+
+/**
+ * 订单服务
+ * 
+ * @author Steven
+ * 
+ */
+public class OrderService {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory
+			.getLogger(OrderService.class);
+
+	static OrderService obj;
+	Ehcache orderpool; // 订单缓存
+
+	public static OrderService getInstance() {
+		if (obj == null)
+			obj = new OrderService();
+		return obj;
+	}
+
+	public OrderService() {
+
+		this.orderpool = CacheManagerUtil.getInstance().getCm()
+				.getEhcache("orderpoolcache");
+
+	}
+
+	public void put(Msg1001 msg) {
+
+		// OrderObject o = new OrderObject();
+		// o.setOrder(msg.getOrder());
+		// this.orderpool.put(new Element(msg.getOrder().getOrderid(), o));
+
+	}
+
+	/**
+	 * 根据通用应答更新订单号
+	 * 
+	 * @param msg
+	 */
+	public void updateOrderId(Msg0003 msg) {
+
+		/**
+		 * 在历史消息中找到订单信息
+		 */
+		AbsMsg m = MsgCache.getInstance().getMsg(msg.getHeader().getSn());
+		if (m == null)
+			return;
+		Msg1001 m1 = (Msg1001) m;
+		OrderInfo oi = m1.getOrder();
+		long orderid_old = oi.getOrderid();
+		long orderid_new = msg.getHeader().getOrderid();
+
+		oi.setOrderid(orderid_new);
+
+		this.orderpool.put(new Element(oi.getOrderid(), oi)); // 将订单信息存入缓存
+
+		// 发送订单号变更消息到总中心
+		MQMsg1008 mqmsg = new MQMsg1008();
+		mqmsg.setOldid(orderid_old);
+		mqmsg.setNewid(orderid_new);
+		MQService.getInstance().sendMsg(mqmsg);
+
+		// 开始执行订单流程
+		if (OrderContants.IS_SELF) {
+			doWithOrder(oi);
+		} else {
+			doWithorder2(oi);
+		}
+	}
+
+	/**
+	 * 找车流程,平台招车
+	 * 
+	 * @param oi
+	 */
+	private void doWithorder2(OrderInfo oi) {
+
+		OrderObject o = new OrderObject();
+		o.setOrder(oi);
+		this.orderpool.put(new Element(oi.getOrderid(), o));
+	}
+
+	/**
+	 * 找车流程,自主招车
+	 * 
+	 * @param oi
+	 */
+	void doWithOrder(OrderInfo oi) {
+
+		// 第一步找到合适的车辆
+		List<CarInfo> l = getTaxi(oi);
+
+		// 找不到车的情况
+		if (l.size() == 0) {
+			MQMsg1009 m = new MQMsg1009();
+			m.setOrderid(oi.getOrderid());
+			m.setReasoncode((byte) 0);
+			MQService.getInstance().sendMsg(m);
+			orderpool.remove(oi.getOrderid());
+			return;
+		}
+
+		// 向目标车辆发送抢单信息
+		Msg1101 m = new Msg1101();
+		m.setOrder(oi);
+		m.setCount((short) l.size());
+		List<String> cars = new ArrayList<String>();
+		for (CarInfo c : l) {
+			cars.add(c.getLisencenumber());
+		}
+		m.setCarNumbers(cars);
+		TcpClient.getInstance().send(m);
+
+		/**
+		 * 等待一会看看是否有接收
+		 */
+		try {
+			Thread.sleep(OrderContants.CALLTAXI_MINWAITINGTIME * 1000l);
+		} catch (InterruptedException e) {
+			logger.error("等待出错：" + e);
+		}
+
+		Element e = this.orderpool.get(oi.getOrderid());
+		if (e == null) // 表示已经被处理
+			return;
+		OrderObject o = (OrderObject) e.getObjectValue();
+
+		/**
+		 * 无车应答时
+		 */
+		if (o.getDrivers().size() == 0) {
+			MQMsg1009 mq = new MQMsg1009();
+			mq.setOrderid(oi.getOrderid());
+			mq.setReasoncode((byte) 0);
+			MQService.getInstance().sendMsg(mq);
+			orderpool.remove(oi.getOrderid());
+			return;
+		}
+
+		doSucess(o);
+
+	}
+
+	/**
+	 * 处理成功的订单对象，包括想司机发送消息和通知乘客
+	 * 
+	 * @param o
+	 */
+	private void doSucess(OrderObject o) {
+
+		List<Msg2001> list = o.getDrivers();
+
+		Collections.sort(list, new BidComparator(o.getOrder()));
+
+		Msg2001 m = list.get(0);
+		// //向中标司机发送成功消息
+		Msg1003 msg_sucess = new Msg1003();
+		msg_sucess.getHeader().setOrderid(o.getOrder().getOrderid());
+		msg_sucess.setCarNumber(m.getCarNumber());
+		TcpClient.getInstance().send(msg_sucess);
+
+		// 通知乘客
+		MQMsg1001 msg_p = new MQMsg1001();
+
+		msg_p.setOrderId(o.getOrder().getOrderid());
+		msg_p.setNumber(m.getCarNumber());
+		msg_p.setPhone(m.getPhone());
+
+		MQService.getInstance().sendMsg(msg_p);
+		// msg_p.setName(m.get);
+
+		// 向未中标司机发送为中标消息
+
+		for (int i = 1; i < list.size(); i++) {
+			m = list.get(i);
+			Msg1004 msg_fa = new Msg1004();
+			msg_fa.getHeader().setOrderid(o.getOrder().getOrderid());
+			msg_fa.setCarNumber(m.getCarNumber());
+			msg_fa.setError((byte) 1);
+			msg_fa.setErrorDesc("该订单已经被抢");
+			TcpClient.getInstance().send(m);
+		}
+
+		this.orderpool.remove(o.getOrder().getOrderid());
+
+	}
+
+	/**
+	 * 根据订单找到合适的车辆
+	 * 
+	 * @param oi
+	 * @return
+	 */
+
+	List<CarInfo> getTaxi(OrderInfo oi) {
+		int rad = OrderContants.CALLTAXI_RAD_MIN;
+
+		List<CarInfo> l = LocationService.getInstance()
+				.getEmptycarByDistance(oi.getUseLng(), oi.getDestLat(),
+						OrderContants.CALLTAXI_RAD_MIN);
+		/**
+		 * 循环找车，直到找到车
+		 */
+		while (l.size() <= OrderContants.CALLTAXI_ORDER_MAXCARS
+				&& rad <= OrderContants.CALLTAXI_RAD_MAX) {
+			rad += OrderContants.CALLTAXI_RAD_STEP;
+			l = LocationService.getInstance().getEmptycarByDistance(
+					oi.getUseLng(), oi.getDestLat(),
+					OrderContants.CALLTAXI_RAD_MIN);
+		}
+
+		if (l == null)
+			return new ArrayList<CarInfo>();
+
+		if (l.size() <= OrderContants.CALLTAXI_ORDER_MAXCARS) // 小于设定的最大值，就直接返回
+			return l;
+
+		/**
+		 * 排序，找最近的车辆发送
+		 */
+
+		Collections.sort(l, new CarDistanceComparator(oi));
+
+		return l.subList(0, OrderContants.CALLTAXI_ORDER_MAXCARS - 1);
+	}
+
+	/**
+	 * 司机抢单
+	 * 
+	 * @param msg
+	 */
+	public void onDriverAnswer(Msg2001 msg) {
+
+		long orderid = msg.getHeader().getOrderid();
+		Element e = this.orderpool.get(orderid);
+		// 找不到，表示已经被抢
+		if (e == null) {
+			Msg1004 m = new Msg1004();
+			m.getHeader().setOrderid(orderid);
+			m.setCarNumber(msg.getCarNumber());
+			m.setError((byte) 1);
+			m.setErrorDesc("该订单已经被抢");
+			TcpClient.getInstance().send(m);
+			return;
+		}
+
+		OrderObject o = (OrderObject) e.getObjectValue();
+		o.getDrivers().add(msg);
+
+		this.orderpool.put(e);
+
+		if (o.getDrivers().size() >= OrderContants.CALLTAXI_ORDER_MAXCARS) // 当抢单司机比较多时直接处理
+		{
+			doSucess(o);
+		}
+
+	}
+
+	/**
+	 * 取消订单
+	 * 
+	 * @param orderId
+	 */
+	public void cancel(long orderId) {
+		this.orderpool.remove(orderId);
+	}
+
+	/**
+	 * 订单对象实体，加入了司机抢单存储
+	 * 
+	 * @author Steven
+	 * 
+	 */
+	class OrderObject {
+		OrderInfo order;
+		List<Msg2001> drivers = new ArrayList<>();
+
+		public OrderInfo getOrder() {
+			return order;
+		}
+
+		public void setOrder(OrderInfo order) {
+			this.order = order;
+		}
+
+		public List<Msg2001> getDrivers() {
+			return drivers;
+		}
+
+		public void setDrivers(List<Msg2001> drivers) {
+			this.drivers = drivers;
+		}
+
+	}
+
+}
