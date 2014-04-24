@@ -18,10 +18,6 @@ public class Handler0003 implements IHandler {
 
 	@Override
 	public void doHandle(IMsg m) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
-		}
-
 		if (m.getClass().isInstance(Msg0003.class)) {
 			Msg0003 msg = (Msg0003) m;
 			// 收到失败的消息应答时
@@ -39,8 +35,5 @@ public class Handler0003 implements IHandler {
 
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("doHandle(IMsg) - end"); //$NON-NLS-1$
-		}
 	}
 }
