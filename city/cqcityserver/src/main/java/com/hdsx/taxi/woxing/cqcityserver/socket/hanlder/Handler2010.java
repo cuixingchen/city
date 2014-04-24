@@ -30,6 +30,10 @@ public class Handler2010 implements IHandler {
 
 	@Override
 	public void doHandle(IMsg m) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
+		}
+
 		if (m.getClass().isInstance(Msg2010.class)) {
 			Msg2010 msg = (Msg2010) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
@@ -54,6 +58,9 @@ public class Handler2010 implements IHandler {
 
 		}
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("doHandle(IMsg) - end"); //$NON-NLS-1$
+		}
 	}
 
 	String getCreditLeveString(byte v) {

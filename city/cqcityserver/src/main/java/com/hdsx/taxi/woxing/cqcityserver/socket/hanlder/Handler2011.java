@@ -27,6 +27,10 @@ public class Handler2011 implements IHandler {
 
 	@Override
 	public void doHandle(IMsg m) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
+		}
+
 		if (m.getClass().isInstance(Msg2011.class)) {
 			Msg2011 msg = (Msg2011) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
@@ -39,6 +43,9 @@ public class Handler2011 implements IHandler {
 			MQService.getInstance().sendMsg(mqmsg);
 		}
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("doHandle(IMsg) - end"); //$NON-NLS-1$
+		}
 	}
 
 }

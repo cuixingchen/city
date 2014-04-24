@@ -4,24 +4,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg2005;
-import com.hdsx.taxi.woxing.mqutil.MQService;
-import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1004;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg2015;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
 
 /**
- * 驾驶员取消订单处理
+ * 乘客上车通知
  * 
  * @author Steven
  * 
  */
-public class Handler2005 implements IHandler {
+public class Handler2015 implements IHandler {
+
 	/**
 	 * Logger for this class
 	 */
 	private static final Logger logger = LoggerFactory
-			.getLogger(Handler2005.class);
+			.getLogger(Handler2015.class);
 
 	@Override
 	public void doHandle(IMsg m) {
@@ -29,24 +28,20 @@ public class Handler2005 implements IHandler {
 			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
 		}
 
-		if (m.getClass().isInstance(Msg2005.class)) {
-			Msg2005 msg = (Msg2005) m;
+		if (m.getClass().isInstance(Msg2015.class)) {
+			Msg2015 msg = (Msg2015) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
-
-			MQMsg1004 mqmsg = new MQMsg1004();
-
-			mqmsg.setCarNumber(msg.getCarNumber());
-			mqmsg.setDriverid(msg.getCertificate());
-			mqmsg.setPhone(msg.getPhone());
-			mqmsg.setReasoncode(msg.getCause());
-			mqmsg.setTime(msg.getBcdtime());
-			mqmsg.setOrderid(msg.getHeader().getOrderid());
-
-			MQService.getInstance().sendMsg(mqmsg);
+//			MQMsg1007 mqmsg = new MQMsg1007();
+//			mqmsg.setOrderid(msg.getHeader().getOrderid());
+//			mqmsg.setLat(CoordinateCodec.Coor2Float(msg.getLat()));
+//			mqmsg.setLon(CoordinateCodec.Coor2Float(msg.getLng()));
+//			mqmsg.setTime(msg.getBcdtime());
+//			MQService.getInstance().sendMsg(mqmsg);
 		}
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("doHandle(IMsg) - end"); //$NON-NLS-1$
 		}
 	}
+
 }

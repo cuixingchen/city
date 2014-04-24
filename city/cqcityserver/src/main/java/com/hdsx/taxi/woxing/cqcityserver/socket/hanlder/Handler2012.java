@@ -3,7 +3,6 @@ package com.hdsx.taxi.woxing.cqcityserver.socket.hanlder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2012;
 import com.hdsx.taxi.woxing.mqutil.MQService;
@@ -27,6 +26,10 @@ public class Handler2012 implements IHandler {
 
 	@Override
 	public void doHandle(IMsg m) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
+		}
+
 		if (m.getClass().isInstance(Msg2012.class)) {
 			Msg2012 msg = (Msg2012) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
@@ -42,6 +45,9 @@ public class Handler2012 implements IHandler {
 			MQService.getInstance().sendMsg(mqmsg);
 		}
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("doHandle(IMsg) - end"); //$NON-NLS-1$
+		}
 	}
 
 }

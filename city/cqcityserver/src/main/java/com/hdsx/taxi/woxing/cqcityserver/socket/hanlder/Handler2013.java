@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg2012;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2013;
 import com.hdsx.taxi.woxing.mqutil.MQService;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1007;
@@ -28,7 +27,11 @@ public class Handler2013 implements IHandler {
 
 	@Override
 	public void doHandle(IMsg m) {
-		if (m.getClass().isInstance(Msg2012.class)) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
+		}
+
+		if (m.getClass().isInstance(Msg2013.class)) {
 			Msg2013 msg = (Msg2013) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
 			MQMsg1007 mqmsg = new MQMsg1007();
@@ -39,6 +42,9 @@ public class Handler2013 implements IHandler {
 			MQService.getInstance().sendMsg(mqmsg);
 		}
 
+		if (logger.isDebugEnabled()) {
+			logger.debug("doHandle(IMsg) - end"); //$NON-NLS-1$
+		}
 	}
 
 }
