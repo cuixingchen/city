@@ -19,13 +19,16 @@ import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1001;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg1002;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1003;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1004;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1101;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.OrderInfo;
+import com.hdsx.taxi.woxing.cqmsg.msg.pojo.PassengerInfo;
 import com.hdsx.taxi.woxing.location.LocationService;
 import com.hdsx.taxi.woxing.mqutil.MQService;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1001;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1008;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1009;
@@ -183,6 +186,12 @@ public class OrderService {
 	 */
 	private void doSucess(OrderObject o) {
 
+		if (o.getState() != 0) // 订单已经被乘客取消的情况
+		{
+			this.orderpool.remove(o.getOrder().getOrderid());
+			return;
+		}
+
 		List<Msg2001> list = o.getDrivers();
 
 		Collections.sort(list, new BidComparator(o.getOrder()));
@@ -204,7 +213,7 @@ public class OrderService {
 		MQService.getInstance().sendMsg(msg_p);
 		// msg_p.setName(m.get);
 
-		// 向未中标司机发送为中标消息
+		// 向未中标司机发送未中标消息
 
 		for (int i = 1; i < list.size(); i++) {
 			m = list.get(i);
@@ -215,7 +224,6 @@ public class OrderService {
 			msg_fa.setErrorDesc("该订单已经被抢");
 			TcpClient.getInstance().send(m);
 		}
-
 		this.orderpool.remove(o.getOrder().getOrderid());
 
 	}
@@ -292,6 +300,41 @@ public class OrderService {
 	}
 
 	/**
+	 * 乘客取消订单
+	 * 
+	 * @param msg
+	 */
+	public void cancelByPasssenger(MQMsg0003 msg) {
+
+		long oid = msg.getOrderId();
+
+		Element e = this.orderpool.get(oid);
+
+		if (e != null) // 表示订单正在处理过程中
+		{
+
+			OrderObject o = (OrderObject) e.getObjectValue();
+			o.setState((byte) 1);
+			this.orderpool.put(e);
+		} else { // 表示订单处理完成，提交到电招中心取消订单
+
+			Msg1002 m = new Msg1002();
+			m.getHeader().setOrderid(msg.getOrderId());
+			m.setCause(msg.getCausecode());
+
+			PassengerInfo p = new PassengerInfo();
+			p.setPassengerName(msg.getPassengerName());
+			p.setPassengerPhone(msg.getPassengerPhone());
+			p.setPassengerSex(msg.getPassengerSex());
+			m.setPassenger(p);
+
+			TcpClient.getInstance().send(m);
+
+		}
+
+	}
+
+	/**
 	 * 取消订单
 	 * 
 	 * @param orderId
@@ -309,6 +352,15 @@ public class OrderService {
 	class OrderObject {
 		OrderInfo order;
 		List<Msg2001> drivers = new ArrayList<>();
+		byte state = 0; // 状态 0为正常，1为被乘客取消，2为被驾驶员取消
+
+		public byte getState() {
+			return state;
+		}
+
+		public void setState(byte state) {
+			this.state = state;
+		}
 
 		public OrderInfo getOrder() {
 			return order;

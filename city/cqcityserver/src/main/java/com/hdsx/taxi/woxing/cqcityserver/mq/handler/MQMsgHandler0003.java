@@ -19,20 +19,8 @@ public class MQMsgHandler0003 implements IMQMsgHanlder {
 	@Override
 	public void dohandle(MQAbsMsg mqmsg) {
 		MQMsg0003 msg = (MQMsg0003) mqmsg;
+		OrderService.getInstance().cancelByPasssenger(msg);
 
-		Msg1002 m = new Msg1002();
-		m.getHeader().setOrderid(msg.getOrderId());
-		m.setCause(msg.getCausecode());
-
-		PassengerInfo p = new PassengerInfo();
-		p.setPassengerName(msg.getPassengerName());
-		p.setPassengerPhone(msg.getPassengerPhone());
-		p.setPassengerSex(msg.getPassengerSex());
-		m.setPassenger(p);
-
-		TcpClient.getInstance().send(m);
-
-		OrderService.getInstance().cancel(msg.getOrderId());
-
+		
 	}
 }
