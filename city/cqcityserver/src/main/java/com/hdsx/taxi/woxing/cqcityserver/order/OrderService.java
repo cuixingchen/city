@@ -24,12 +24,14 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg1003;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1004;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1101;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg2005;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.OrderInfo;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.PassengerInfo;
 import com.hdsx.taxi.woxing.location.LocationService;
 import com.hdsx.taxi.woxing.mqutil.MQService;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1001;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1004;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1008;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1009;
 
@@ -341,6 +343,41 @@ public class OrderService {
 	 */
 	public void cancel(long orderId) {
 		this.orderpool.remove(orderId);
+	}
+
+	/**
+	 * 订单被驾驶员取消
+	 * 
+	 * @param msg
+	 */
+	public void cancelByDriver(Msg2005 msg) {
+		long oid = msg.getHeader().getOrderid();
+
+		Element e = this.orderpool.get(oid);
+
+		if (e != null) // 表示订单正在处理过程中
+		{
+
+			OrderObject o = (OrderObject) e.getObjectValue();
+			o.setState((byte) 2);
+			this.orderpool.put(e);
+		}
+
+		else {
+			/**
+			 * 表示订单已经处理完成
+			 */
+
+			MQMsg1004 mqmsg = new MQMsg1004();
+
+			mqmsg.setCarNumber(msg.getCarNumber());
+			mqmsg.setDriverid(msg.getCertificate());
+			mqmsg.setPhone(msg.getPhone());
+			mqmsg.setReasoncode(msg.getCause());
+			mqmsg.setTime(msg.getBcdtime());
+			mqmsg.setOrderid(msg.getHeader().getOrderid());
+			MQService.getInstance().sendMsg(mqmsg);
+		}
 	}
 
 	/**

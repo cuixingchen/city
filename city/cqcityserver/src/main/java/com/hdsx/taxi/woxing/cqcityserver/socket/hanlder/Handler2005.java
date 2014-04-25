@@ -3,6 +3,7 @@ package com.hdsx.taxi.woxing.cqcityserver.socket.hanlder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.cqcityserver.order.OrderService;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2005;
 import com.hdsx.taxi.woxing.mqutil.MQService;
@@ -33,16 +34,8 @@ public class Handler2005 implements IHandler {
 			Msg2005 msg = (Msg2005) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
 
-			MQMsg1004 mqmsg = new MQMsg1004();
+			OrderService.getInstance().cancelByDriver(msg);
 
-			mqmsg.setCarNumber(msg.getCarNumber());
-			mqmsg.setDriverid(msg.getCertificate());
-			mqmsg.setPhone(msg.getPhone());
-			mqmsg.setReasoncode(msg.getCause());
-			mqmsg.setTime(msg.getBcdtime());
-			mqmsg.setOrderid(msg.getHeader().getOrderid());
-
-			MQService.getInstance().sendMsg(mqmsg);
 		}
 
 		if (logger.isDebugEnabled()) {
