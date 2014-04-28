@@ -17,7 +17,6 @@ import com.hdsx.taxi.woxing.cqcityserver.order.util.CarDistanceComparator;
 import com.hdsx.taxi.woxing.cqcityserver.socket.MsgCache;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1002;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1003;
@@ -25,6 +24,7 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg1004;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1101;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2005;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg3003;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.OrderInfo;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.PassengerInfo;
 import com.hdsx.taxi.woxing.location.LocationService;
@@ -77,7 +77,7 @@ public class OrderService {
 	 * 
 	 * @param msg
 	 */
-	public void updateOrderId(Msg0003 msg) {
+	public void updateOrderId(Msg3003 msg) {
 
 		/**
 		 * 在历史消息中找到订单信息

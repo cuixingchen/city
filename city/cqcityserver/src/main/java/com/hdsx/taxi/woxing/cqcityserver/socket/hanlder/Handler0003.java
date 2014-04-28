@@ -28,10 +28,10 @@ public class Handler0003 implements IHandler {
 				return;
 			}
 			if (TcpClient.getInstance().isLogined()) {
-				if (msg.getMsgid() == MessageID.msg0x1001) { // 发送订单的回复需要获取返回的订单号
-					OrderService.getInstance().updateOrderId(msg);
-
-				}
+//				if (msg.getMsgid() == MessageID.msg0x1001) { // 发送订单的回复需要获取返回的订单号
+//					OrderService.getInstance().updateOrderId(msg);
+//
+//				}
 
 				MsgCache.getInstance().remove(msg);
 			} else {
