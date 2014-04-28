@@ -1,6 +1,13 @@
 package com.hdsx.taxi.woxing.cqcityserver;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Scanner;
+
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
+import com.hdsx.taxi.woxing.cqcityserver.socket.TcpHandler;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.MessageID;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
@@ -21,19 +28,22 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg1014;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1015;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1016;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1101;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg2005;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg2010;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg2011;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg2012;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg2013;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg3003;
 
 public class TcpClientTest {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory
+			.getLogger(TcpClientTest.class);
 
 	public static void main(String[] args) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("main(String[]) - start"); //$NON-NLS-1$
+		}
+
+		Scanner in = new Scanner(System.in);
+		int msgID = in.nextInt();
 		TcpClient.getInstance().run();
-		int msgID = Integer.valueOf(args[0]);
 		AbsMsg m = null;
 		switch (msgID) {
 		case MessageID.msg0x0001:
@@ -90,34 +100,27 @@ public class TcpClientTest {
 		case MessageID.msg0x1101:
 			m = new Msg1101();
 			break;
-		case MessageID.msg0x2001:
-			m = new Msg2001();
+		default:
 			break;
-		case MessageID.msg0x2005:
-			m = new Msg2005();
-			break;
-		case MessageID.msg0x2010:
-			m = new Msg2010();
-			break;
-		case MessageID.msg0x2011:
-			m = new Msg2011();
-			break;
-		case MessageID.msg0x2012:
-			m = new Msg2012();
-			break;
-		case MessageID.msg0x2013:
-			m = new Msg2013();
-			break;
-		case MessageID.msg0x2015:
-			m = new Msg2001();
-			break;
-		case MessageID.msg0x3003:
-			m = new Msg3003();
-			break;
-	
-			default:
-				break;
+		}
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			logger.error("main(String[])", e); //$NON-NLS-1$
+
+			e.printStackTrace();
 		}
 		TcpClient.getInstance().send(m);
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			logger.error("main(String[])", e); //$NON-NLS-1$
+
+			e.printStackTrace();
+		}
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("main(String[]) - end"); //$NON-NLS-1$
+		}
 	}
 }

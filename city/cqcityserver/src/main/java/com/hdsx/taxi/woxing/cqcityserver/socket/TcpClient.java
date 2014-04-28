@@ -110,14 +110,16 @@ public class TcpClient extends Thread {
 						@Override
 						protected void initChannel(SocketChannel ch)
 								throws Exception {
-							ch.pipeline().addLast(codec,
-									new LoggingHandler(loglevel), handler);
+//							ch.pipeline().addLast(codec,
+//									new LoggingHandler(loglevel), handler);
+
+							ch.pipeline().addLast(new CQTcpCodec(),new LoggingHandler(loglevel),new TcpHandler());
 						}
 					});
 
 			logger.debug("init(String, int, String, String) - ready to connect"); //$NON-NLS-1$
 
-			b.connect(hostname, hostport).sync().channel().closeFuture().sync();
+			b.connect(hostname, hostport).sync();
 
 		} catch (InterruptedException | IOException e) {
 			logger.error("init(String, int, String, String)", e); //$NON-NLS-1$
