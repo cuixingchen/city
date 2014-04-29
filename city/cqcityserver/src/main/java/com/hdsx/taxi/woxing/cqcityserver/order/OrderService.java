@@ -91,7 +91,7 @@ public class OrderService {
 		long orderid_new = msg.getHeader().getOrderid();
 
 		oi.setOrderid(orderid_new);
-
+		this.orderpool.remove(orderid_old);
 		this.orderpool.put(new Element(oi.getOrderid(), oi)); // 将订单信息存入缓存
 
 		// 发送订单号变更消息到总中心
@@ -171,7 +171,7 @@ public class OrderService {
 		if (o.getDrivers().size() == 0) {
 			MQMsg1009 mq = new MQMsg1009();
 			mq.setOrderid(oi.getOrderid());
-			mq.setReasoncode((byte) 0);
+			mq.setReasoncode((byte) 1);
 			MQService.getInstance().sendMsg(mq);
 			orderpool.remove(oi.getOrderid());
 			return;
@@ -287,18 +287,25 @@ public class OrderService {
 			m.setErrorDesc("该订单已经被抢");
 			TcpClient.getInstance().send(m);
 			return;
+		}else{
+			OrderObject o = (OrderObject) e.getObjectValue();
+			o.getDrivers().add(msg);
+			if (o.getDrivers().size() > OrderContants.CALLTAXI_ORDER_MAXCARS){
+				Msg1004 m = new Msg1004();
+				m.getHeader().setOrderid(orderid);
+				m.setCarNumber(msg.getCarNumber());
+				m.setError((byte) 1);
+				m.setErrorDesc("该订单已经被抢");
+				TcpClient.getInstance().send(m);
+				return;
+			}
+			this.orderpool.put(e);
+
+			if (o.getDrivers().size() >= OrderContants.CALLTAXI_ORDER_MAXCARS) // 当抢单司机比较多时直接处理
+			{
+				doSucess(o);
+			}
 		}
-
-		OrderObject o = (OrderObject) e.getObjectValue();
-		o.getDrivers().add(msg);
-
-		this.orderpool.put(e);
-
-		if (o.getDrivers().size() >= OrderContants.CALLTAXI_ORDER_MAXCARS) // 当抢单司机比较多时直接处理
-		{
-			doSucess(o);
-		}
-
 	}
 
 	/**
