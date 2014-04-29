@@ -22,6 +22,9 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
+		if (logger.isDebugEnabled()) {
+			logger.debug("channelRead(ChannelHandlerContext, Object) - start"); //$NON-NLS-1$
+		}
 
 		try {
 			if (msg.getClass().isInstance(AbsMsg.class)) {
@@ -33,6 +36,10 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 			}
 		} finally {
 			ReferenceCountUtil.release(msg);
+		}
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("channelRead(ChannelHandlerContext, Object) - end"); //$NON-NLS-1$
 		}
 	}
 

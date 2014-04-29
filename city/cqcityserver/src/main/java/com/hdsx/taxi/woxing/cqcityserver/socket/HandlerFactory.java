@@ -1,5 +1,8 @@
 package com.hdsx.taxi.woxing.cqcityserver.socket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 
 import com.hdsx.taxi.woxing.cqcityserver.socket.hanlder.Handler2001;
@@ -15,6 +18,11 @@ import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
 
 public class HandlerFactory {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory
+			.getLogger(TcpHandler.class);
 
 	static HashMap<Integer, IHandler> map = new HashMap<>();
 	static {
@@ -31,8 +39,15 @@ public class HandlerFactory {
 	}
 
 	public static IHandler getHandler(AbsMsg m) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("getHandler(AbsMsg) - start:msgid :"+m.getHeader().getMsgid()); //$NON-NLS-1$
+		}
 
-		return map.get(m.getHeader().getMsgid());
+		IHandler returnIHandler = map.get(m.getHeader().getMsgid());
+		if (logger.isDebugEnabled()) {
+			logger.debug("getHandler(AbsMsg) - end"); //$NON-NLS-1$
+		}
+		return returnIHandler;
 	}
 
 }
