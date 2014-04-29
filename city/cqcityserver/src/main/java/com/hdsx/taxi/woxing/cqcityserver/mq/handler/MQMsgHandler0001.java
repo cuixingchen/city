@@ -26,7 +26,7 @@ public class MQMsgHandler0001 implements IMQMsgHanlder {
 
 		oi.setOrderType(msg.getTakeTaxiType());
 		oi.setTips(msg.getTips());
-		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddhhmmss");
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		oi.setUseTime(df.format(msg.getGetOnTime()));
 		oi.setAddress(msg.getGetOnPlaceName());
 		oi.setUseLat(CoordinateCodec.Coor2UInt((float) msg.getGetOnLat()));
