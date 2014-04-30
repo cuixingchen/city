@@ -25,6 +25,7 @@ import com.hdsx.taxi.woxing.cqcityserver.socket.thread.HeartBeatThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReConnectedThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReSendMsgThread;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
+import com.hdsx.taxi.woxing.cqmsg.MessageID;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
@@ -238,6 +239,10 @@ public class TcpClient extends Thread {
 	 * @param msg
 	 */
 	public void sendAnsworMsg(AbsMsg msg) {
+		short msgid = msg.getHeader().getMsgid();
+		if (msgid==MessageID.msg0x3003) {
+			return;
+		}
 		Msg0003 mout = new Msg0003();
 		mout.setMsgid(msg.getHeader().getMsgid());
 		mout.getHeader().setSn(msg.getHeader().getSn());

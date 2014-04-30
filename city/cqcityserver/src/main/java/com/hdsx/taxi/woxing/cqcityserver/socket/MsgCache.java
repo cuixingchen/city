@@ -45,14 +45,14 @@ public class MsgCache {
 			logger.debug("put(AbsMsg) - start"); //$NON-NLS-1$
 		}
 
-		if (msg.getHeader().getMsgid()==MessageID.msg0x0002||msg.getHeader().getMsgid()==MessageID.msg0x0003) {
+		if (msg.getHeader().getMsgid()==MessageID.msg0x0001||msg.getHeader().getMsgid()==MessageID.msg0x0002||msg.getHeader().getMsgid()==MessageID.msg0x0003) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("put(AbsMsg) - end"); //$NON-NLS-1$
 			}
 			return ;
 		}
 		int seq = msg.getHeader().getSn();
-		MsgObj m = MsgCache.getInstance().get(seq);
+		MsgObj m = MsgCache.getInstance().get(String.valueOf(seq));
 		if (m == null)
 			m = new MsgObj(msg);
 		else {
@@ -72,7 +72,7 @@ public class MsgCache {
 		this.cache.put(e);
 	}
 
-	public void remove(int key) {
+	public void remove(String key) {
 		this.cache.remove(key);
 
 	}
@@ -96,7 +96,7 @@ public class MsgCache {
 	 * @param key
 	 * @return
 	 */
-	public MsgObj get(int key) {
+	public MsgObj get(String key) {
 		Element e = this.cache.get(key);
         return e == null ? null : (MsgObj)e.getObjectValue();  
 
@@ -117,9 +117,9 @@ public class MsgCache {
 	public List<MsgObj> cleanAndgetResendMsg(int minInterval, int maxCount,int maxTime) {
 		List<MsgObj> list = new ArrayList<MsgObj>();
 		
-		List<Integer> keys = cache.getKeys();
+		List<String> keys = cache.getKeys();
 		Date date = new Date();
-		for (Integer key : keys) {
+		for (String key : keys) {
 			MsgObj obj = MsgCache.getInstance().get(key);
 			Date endtime = DateFormateUtil.getDateAddHours(obj.getCreatetime(), maxTime);
 
