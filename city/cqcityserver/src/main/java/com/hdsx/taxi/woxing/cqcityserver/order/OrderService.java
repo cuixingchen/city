@@ -21,6 +21,7 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg1001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1002;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1003;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1004;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg1015;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1101;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2005;
@@ -29,6 +30,7 @@ import com.hdsx.taxi.woxing.cqmsg.msg.pojo.OrderInfo;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.PassengerInfo;
 import com.hdsx.taxi.woxing.location.LocationService;
 import com.hdsx.taxi.woxing.mqutil.MQService;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0002;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1001;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1004;
@@ -385,6 +387,27 @@ public class OrderService {
 			mqmsg.setOrderid(msg.getHeader().getOrderid());
 			MQService.getInstance().sendMsg(mqmsg);
 		}
+	}
+	
+	/**
+	 * 查询订单状态
+	 * @param msg
+	 */
+	public void getorderState(MQMsg0002 mqmsg){
+		long orderId=mqmsg.getOrderId();
+//		Element e = this.orderpool.get(orderId);
+//		if (e != null) // 表示订单正在处理过程中
+//		{
+//
+//			OrderObject o = (OrderObject) e.getObjectValue();
+//			o.setState((byte) 2);
+//			this.orderpool.put(e);
+//		}else{
+//			
+//		}
+		Msg1015 msg=new Msg1015();
+		msg.getHeader().setOrderid(orderId);
+		TcpClient.getInstance().send(msg);
 	}
 
 	/**
