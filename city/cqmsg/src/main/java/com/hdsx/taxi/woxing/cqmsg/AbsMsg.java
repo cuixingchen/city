@@ -65,6 +65,7 @@ public abstract class AbsMsg implements IMsg {
 		head = encode(head);
 		byte[] xorbytes = encode(new byte[] { xor });
 
+		buffer.position(0);
 		buffer.put(MsgHeader.MSG_HEAD_FLAG);
 		buffer.put(head);
 		buffer.put(body);
@@ -146,6 +147,7 @@ public abstract class AbsMsg implements IMsg {
 		}
 
 		byte[] result = new byte[buffer.position()];
+		buffer.position(0);
 		buffer.get(result);
 		return result;
 	}

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.jms.JMSException;
 
-import com.hdsx.taxi.woxing.bean.util.CacheManagerUtil;
 import com.hdsx.taxi.woxing.cqcityserver.mq.CQMQMessageListener;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.mqutil.MQService;

@@ -56,14 +56,15 @@ public class MsgFactory {
 	 * @return
 	 */
 	public static AbsMsg genMsg(byte[] bytes) {
-		
-		// TODO 完成消息工厂加载  @张阳
-		//TODO 补充遗漏的消息 @谢光泉
+
+		// TODO 完成消息工厂加载 @张阳
+		// TODO 补充遗漏的消息 @谢光泉
 
 		buffer.clear();
 		buffer.put(bytes[0]);
 		buffer.put(bytes[1]);
 
+		buffer.position(0);
 		short id = buffer.getShort();
 
 		int msgID = id;
@@ -147,14 +148,14 @@ public class MsgFactory {
 		case MessageID.msg0x3003:
 			m = new Msg3003();
 			break;
-	
-			default:
-				break;
+
+		default:
+			break;
 		}
-//		if (id == 0x0001)
-//			return new Msg0001();
-//		else if (id == 0x0002)
-//			return new Msg0002();
+		// if (id == 0x0001)
+		// return new Msg0001();
+		// else if (id == 0x0002)
+		// return new Msg0002();
 
 		return m;
 

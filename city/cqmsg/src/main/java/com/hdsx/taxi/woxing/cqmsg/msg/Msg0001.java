@@ -74,6 +74,12 @@ public class Msg0001 extends AbsMsg {
 	}
 
 	@Override
+	public String toString() {
+		return "Msg0001 [timestamp=" + timestamp + ", validate=" + validate
+				+ ", head=" + head + "]";
+	}
+
+	@Override
 	protected boolean bodyfrombytes(byte[] b) {
 
 		try {
