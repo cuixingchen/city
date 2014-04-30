@@ -14,8 +14,8 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		TcpClient.getInstance();
-		CacheManagerUtil.path=System.getProperty("user.dir")+"/target/classes/ehcache.xml";
+		TcpClient.getInstance().run();
+//		CacheManagerUtil.path=System.getProperty("user.dir")+"/target/classes/ehcache.xml";
 		
 		OrderService.getInstance();
 		try {

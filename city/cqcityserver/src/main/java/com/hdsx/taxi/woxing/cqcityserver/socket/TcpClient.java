@@ -117,14 +117,14 @@ public class TcpClient extends Thread {
 						}
 					});
 
-			logger.debug("init(String, int, String, String) - ready to connect"); //$NON-NLS-1$
+			logger.info("init(String, int, String, String) - ready to connect"+hostname+":"+hostport); //$NON-NLS-1$
 
 			b.connect(hostname, hostport).sync();
 
 		} catch (InterruptedException | IOException e) {
 			logger.error("init(String, int, String, String)", e); //$NON-NLS-1$
 		} finally {
-			group.shutdownGracefully();
+//			group.shutdownGracefully();
 		}
 	}
 
