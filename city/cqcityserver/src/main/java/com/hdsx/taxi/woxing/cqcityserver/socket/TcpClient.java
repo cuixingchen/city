@@ -112,7 +112,7 @@ public class TcpClient extends Thread {
 
 			logger.info("init(String, int, String, String) - ready to connect"+hostname+":"+hostport); //$NON-NLS-1$
 
-			b.connect(hostname, hostport).sync();
+			cf = b.connect(hostname, hostport).sync();
 
 		} catch (InterruptedException | IOException e) {
 			logger.error("init(String, int, String, String)", e); //$NON-NLS-1$
@@ -241,10 +241,14 @@ public class TcpClient extends Thread {
 		Msg0003 mout = new Msg0003();
 		mout.setMsgid(msg.getHeader().getMsgid());
 		mout.getHeader().setSn(msg.getHeader().getSn());
-		if (ch != null && ch.isOpen()) {
-			ChannelFuture cf = ch.write(mout);
+		if (chtx != null && chtx.channel().isOpen()) {
+			ChannelFuture cf = chtx.write(mout);
+			chtx.flush();
 			logger.debug("cf - :" + cf.toString() + cf.isSuccess());
 		}
 	}
 
+	public static void main(String[] args) {
+		TcpClient.getInstance().run();
+	}
 }
