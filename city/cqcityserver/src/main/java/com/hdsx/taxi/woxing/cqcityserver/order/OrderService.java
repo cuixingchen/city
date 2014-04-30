@@ -82,7 +82,7 @@ public class OrderService {
 		/**
 		 * 在历史消息中找到订单信息
 		 */
-		AbsMsg m = MsgCache.getInstance().getMsg(msg.getHeader().getSn()+";"+msg.getMsgid());
+		AbsMsg m = MsgCache.getInstance().getMsg(msg.getHeader().getSn());
 		if (m == null)
 			return;
 		Msg1001 m1 = (Msg1001) m;
