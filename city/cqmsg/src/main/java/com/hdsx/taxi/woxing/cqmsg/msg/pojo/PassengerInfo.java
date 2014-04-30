@@ -16,6 +16,12 @@ import java.io.Serializable;
  */
 public class PassengerInfo implements Serializable {
 	
+	@Override
+	public String toString() {
+		return "PassengerInfo [passengerName=" + passengerName
+				+ ", passengerSex=" + passengerSex + ", passengerPhone="
+				+ passengerPhone + "]";
+	}
 	/**
 	 * 
 	 */

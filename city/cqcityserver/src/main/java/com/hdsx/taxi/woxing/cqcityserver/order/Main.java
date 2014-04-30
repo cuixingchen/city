@@ -10,28 +10,17 @@ import com.hdsx.taxi.woxing.mqutil.MQService;
 
 public class Main {
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		
-		TcpClient.getInstance().run();
-//		CacheManagerUtil.path=System.getProperty("user.dir")+"/target/classes/ehcache.xml";
-		
+	public static void main(String[] args) {		
+		TcpClient.getInstance().run();		
 		OrderService.getInstance();
 		try {
 			MQService.getInstance().initcity(new CQMQMessageListener());
 		} catch (JMSException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-//		try {
-//			Thread.sleep(10000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+
 	}
 
 }

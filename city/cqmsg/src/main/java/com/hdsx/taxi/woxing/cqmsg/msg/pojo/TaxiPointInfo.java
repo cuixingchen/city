@@ -2,6 +2,12 @@ package com.hdsx.taxi.woxing.cqmsg.msg.pojo;
 
 
 public class TaxiPointInfo {
+	@Override
+	public String toString() {
+		return "TaxiPointInfo [driver=" + driver + ", lon=" + lon + ", lat="
+				+ lat + ", state=" + state + "]";
+	}
+
 	DriverInfo driver = new DriverInfo();
 	long lon, lat;
 	byte state;

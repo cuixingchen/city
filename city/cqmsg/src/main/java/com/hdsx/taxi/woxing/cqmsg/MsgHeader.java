@@ -20,6 +20,12 @@ import java.nio.ByteBuffer;
  ***************************************************************************** 
  */
 public class MsgHeader implements Serializable {
+	@Override
+	public String toString() {
+		return "MsgHeader [msgid=" + msgid + ", sn=" + sn + ", flag=" + flag
+				+ ", orderid=" + orderid + ", bodylen=" + bodylen + "]";
+	}
+
 	/**
 	 * Logger for this class
 	 */

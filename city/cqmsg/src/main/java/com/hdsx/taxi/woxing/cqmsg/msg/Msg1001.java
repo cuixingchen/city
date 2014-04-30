@@ -34,6 +34,13 @@ public class Msg1001 extends AbsMsg {
 	private int radius;
 
 	@Override
+	public String toString() {
+		return "Msg1001 [order=" + order + ", radius=" + radius + ", head="
+				+ head + "]";
+	}
+
+
+	@Override
 	protected int getMsgID() {
 		return MessageID.msg0x1001;
 	}

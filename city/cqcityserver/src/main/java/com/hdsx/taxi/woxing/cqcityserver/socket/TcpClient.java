@@ -126,6 +126,7 @@ public class TcpClient extends Thread {
 	 * @param b
 	 */
 	public void loginOK(boolean b) {
+		
 		this.isLogined = b;
 
 		if (b) {
@@ -151,7 +152,7 @@ public class TcpClient extends Thread {
 	 */
 	public void send(AbsMsg m) {
 		// try {
-		logger.info("开始发送tcp消息");
+		logger.debug("开始发送tcp消息:"+m.toString());
 		if (this.isLogined) {
 			if (chtx != null && chtx.channel().isOpen()) {
 				MsgCache.getInstance().put(m);
