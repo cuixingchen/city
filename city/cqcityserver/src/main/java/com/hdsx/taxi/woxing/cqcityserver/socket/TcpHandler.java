@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
 
 /**
@@ -19,6 +18,7 @@ import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
  * 
  */
 public class TcpHandler extends ChannelInboundHandlerAdapter {
+	
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
@@ -33,6 +33,7 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 				if (handler != null) {
 					handler.doHandle(m);
 				}
+				TcpClient.getInstance().sendAnsworMsg(m);
 			}
 		} finally {
 			ReferenceCountUtil.release(msg);
@@ -50,11 +51,9 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 		}
 
 		super.channelActive(ctx);
-		TcpClient.getInstance().setConnected(true);
-		Msg0001 loginmsg = new Msg0001();
-		ctx.channel().write(loginmsg);
-		// TcpClient.getInstance().sendWithoutCache(loginmsg);
-
+		TcpClient.getInstance().setChtx(ctx);
+		TcpClient.getInstance().login();
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("channelActive(ChannelHandlerContext) - end"); //$NON-NLS-1$
 		}
@@ -63,7 +62,7 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		super.channelInactive(ctx);
-		TcpClient.getInstance().setConnected(false);
+		TcpClient.getInstance().getChtx().close();
 	}
 
 	/**
