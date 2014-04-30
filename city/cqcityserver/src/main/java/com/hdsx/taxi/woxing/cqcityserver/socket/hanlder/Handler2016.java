@@ -5,14 +5,15 @@ import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2016;
+import com.hdsx.taxi.woxing.mqutil.MQService;
+import com.hdsx.taxi.woxing.mqutil.message.location.MQMsg3001;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
 
 /**
- * 乘客上车通知
- * 
- * @author Steven
- * 
+ * 查询周边空车结果
+ * @author cuipengfei
+ *
  */
 public class Handler2016 implements IHandler {
 
@@ -31,12 +32,9 @@ public class Handler2016 implements IHandler {
 		if (m.getClass().isInstance(Msg2016.class)) {
 			Msg2016 msg = (Msg2016) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
-//			MQMsg1007 mqmsg = new MQMsg1007();
-//			mqmsg.setOrderid(msg.getHeader().getOrderid());
-//			mqmsg.setLat(CoordinateCodec.Coor2Float(msg.getLat()));
-//			mqmsg.setLon(CoordinateCodec.Coor2Float(msg.getLng()));
-//			mqmsg.setTime(msg.getBcdtime());
-//			MQService.getInstance().sendMsg(mqmsg);
+			MQMsg3001 mqmsg = new MQMsg3001();
+			mqmsg.setCars(msg.getLs());
+			MQService.getInstance().sendMsg(mqmsg);
 		}
 
 		if (logger.isDebugEnabled()) {
