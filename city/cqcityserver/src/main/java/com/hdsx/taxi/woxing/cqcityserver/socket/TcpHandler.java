@@ -27,7 +27,8 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 		}
 
 		try {
-			if (msg.getClass().isInstance(AbsMsg.class)) {
+			if (msg instanceof AbsMsg){
+
 				AbsMsg m = (AbsMsg) msg;
 				IHandler handler = HandlerFactory.getHandler(m);
 				if (handler != null) {
