@@ -37,6 +37,16 @@ public class OrderInfo implements Serializable {
 		return passengerInfo;
 	}
 
+	@Override
+	public String toString() {
+		return "OrderInfo [orderid=" + orderid + ", passengerInfo="
+				+ passengerInfo + ", orderType=" + orderType + ", tips=" + tips
+				+ ", useTime=" + useTime + ", address=" + address + ", useLng="
+				+ useLng + ", useLat=" + useLat + ", destination="
+				+ destination + ", destLng=" + destLng + ", destLat=" + destLat
+				+ ", remark=" + remark + "]";
+	}
+
 	public long getOrderid() {
 		return orderid;
 	}

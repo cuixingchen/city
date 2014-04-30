@@ -20,6 +20,13 @@ public class DriverInfo implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private String driverName;// 驾驶员姓名 string[16]
+	@Override
+	public String toString() {
+		return "DriverInfo [driverName=" + driverName + ", company=" + company
+				+ ", driverPhone=" + driverPhone + ", driverSerial="
+				+ driverSerial + ", creditLevel=" + creditLevel
+				+ ", licenseNumber=" + licenseNumber + "]";
+	}
 	private String company;// 驾驶员公司 string[16] 公司简称
 	private String driverPhone;// 驾驶员电话 String[11] 车载终端电话
 	private String driverSerial;// 从业人员id号 String[19] 驾驶员id号，驾驶员监督卡号
