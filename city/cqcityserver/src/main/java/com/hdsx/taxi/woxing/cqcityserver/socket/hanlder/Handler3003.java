@@ -27,7 +27,7 @@ public class Handler3003 implements IHandler {
 		if (m.getClass().isInstance(Msg3003.class)) {
 			Msg3003 msg = (Msg3003) m;
 
-			String key =  msg.getHeader().getSn()+";"+msg.getMsgid();
+//			String key =  msg.getHeader().getSn()+";"+msg.getMsgid();
 			
 			// 收到失败的消息应答时
 			if (msg.getError() != 0) {
@@ -43,10 +43,10 @@ public class Handler3003 implements IHandler {
 				if (msg.getMsgid() == MessageID.msg0x1001) { // 发送订单的回复需要获取返回的订单号
 					OrderService.getInstance().updateOrderId(msg);
 				}
-				MsgCache.getInstance().remove(key);
+				MsgCache.getInstance().remove(msg.getHeader().getSn());
 			}
 			
-			MsgCache.getInstance().remove(key);
+			MsgCache.getInstance().remove(msg.getHeader().getSn());
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("doHandle(AbsMsg) - msgId:"+msg.getMsgid()); //$NON-NLS-1$

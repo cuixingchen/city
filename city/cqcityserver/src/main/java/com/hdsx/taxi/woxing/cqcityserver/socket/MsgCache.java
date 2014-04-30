@@ -52,9 +52,7 @@ public class MsgCache {
 			return ;
 		}
 		int seq = msg.getHeader().getSn();
-		int id = msg.getHeader().getMsgid();
-		String key = id + ";" + seq + ";";
-		MsgObj m = MsgCache.getInstance().get(key);
+		MsgObj m = MsgCache.getInstance().get(seq);
 		if (m == null)
 			m = new MsgObj(msg);
 		else {
@@ -64,7 +62,7 @@ public class MsgCache {
 		MsgCache.getInstance().put(m);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("消息加入缓存！消息key:" + key);
+			logger.debug("消息加入缓存！消息key:" + seq);
 		}
 	}
 	
@@ -74,7 +72,7 @@ public class MsgCache {
 		this.cache.put(e);
 	}
 
-	public void remove(String key) {
+	public void remove(int key) {
 		this.cache.remove(key);
 
 	}
@@ -85,7 +83,7 @@ public class MsgCache {
 	 * @param key
 	 * @return
 	 */
-	public AbsMsg getMsg(String key) {
+	public AbsMsg getMsg(int key) {
 		Element e = this.cache.get(key);
 		MsgObj m =e == null ? null : (MsgObj)e.getObjectValue();
         return m==null?null:m.getMsg();  
@@ -98,7 +96,7 @@ public class MsgCache {
 	 * @param key
 	 * @return
 	 */
-	public MsgObj get(String key) {
+	public MsgObj get(int key) {
 		Element e = this.cache.get(key);
         return e == null ? null : (MsgObj)e.getObjectValue();  
 
@@ -119,9 +117,9 @@ public class MsgCache {
 	public List<MsgObj> cleanAndgetResendMsg(int minInterval, int maxCount,int maxTime) {
 		List<MsgObj> list = new ArrayList<MsgObj>();
 		
-		List<String> keys = cache.getKeys();
+		List<Integer> keys = cache.getKeys();
 		Date date = new Date();
-		for (String key : keys) {
+		for (Integer key : keys) {
 			MsgObj obj = MsgCache.getInstance().get(key);
 			Date endtime = DateFormateUtil.getDateAddHours(obj.getCreatetime(), maxTime);
 
