@@ -151,6 +151,7 @@ public class TcpClient extends Thread {
 	 */
 	public void send(AbsMsg m) {
 		// try {
+		logger.info("开始发送tcp消息");
 		if (this.isLogined) {
 			if (chtx != null && chtx.channel().isOpen()) {
 				MsgCache.getInstance().put(m);
@@ -192,11 +193,18 @@ public class TcpClient extends Thread {
 		// 打开连接时发送登录消息
 		try {
 
-			Msg0001 loginmsg = new Msg0001();
-			TcpClient.getInstance().send(loginmsg);
+			Msg0001 m = new Msg0001();
+
+			if (chtx != null && chtx.channel().isOpen()) {
+				MsgCache.getInstance().put(m);
+				ChannelFuture cf = chtx.write(m);
+				chtx.flush();
+				logger.debug("cf - :" + cf.toString() + cf.isSuccess());
+			}
 
 		} catch (Exception e) {
 			logger.info("login() - Exception"+e.getStackTrace()); //$NON-NLS-1$
+			e.printStackTrace();
 		}
 
 		if (logger.isDebugEnabled()) {
