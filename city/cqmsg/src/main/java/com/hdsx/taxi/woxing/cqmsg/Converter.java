@@ -1,6 +1,5 @@
 package com.hdsx.taxi.woxing.cqmsg;
 
-
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -9,8 +8,8 @@ import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * 
- * *****************************************************************************
- * <br/><b>类名:Converter</b> <br/>
+ * ***************************************************************************** <br/>
+ * <b>类名:Converter</b> <br/>
  * 编写人: 谢广泉 <br/>
  * 日期: 2014年3月7日<br/>
  * 功能：字节流转化类<br/>
@@ -18,10 +17,9 @@ import org.apache.commons.lang3.ArrayUtils;
  * @author gq
  * @version 1.0.0
  * 
- *****************************************************************************
+ ***************************************************************************** 
  */
 public class Converter {
-
 
 	public static String reversal(String str) {
 		// System.out.println(str);
@@ -232,7 +230,7 @@ public class Converter {
 		byte[] str = new byte[l];
 		System.arraycopy(b, pos, str, 0, l);
 
-		return new String(str,Charset.forName("utf-8"));
+		return new String(str, Charset.forName("utf-8"));
 	}
 
 	public static void StringFill2Bytes(byte[] b, String str, int pos) {
@@ -366,7 +364,8 @@ public class Converter {
 	 * @return
 	 */
 	public static byte[] getBytes(String s) {
-		return s==null?"".getBytes(Charset.forName("GBK")):s.getBytes(Charset.forName("GBK"));
+		return s == null ? "".getBytes(Charset.forName("GBK")) : s
+				.getBytes(Charset.forName("GBK"));
 	}
 
 	/**
@@ -378,7 +377,7 @@ public class Converter {
 	public static String toGBKString(byte[] b) {
 		try {
 			String s = new String(b, "GBK");
-			return s;
+			return s.trim();
 		} catch (UnsupportedEncodingException e) {
 			return "";
 		}
@@ -825,21 +824,19 @@ public class Converter {
 	}
 
 	public static void main(String[] args) {
-//		System.out.println(Integer.toHexString((int) ("很".toCharArray()[0])));
-		
+		// System.out.println(Integer.toHexString((int)
+		// ("很".toCharArray()[0])));
+
 		int f = 129;
-		
+
 		byte tf = (byte) f;
-		
-		System.out.println("byte:"+tf);
-		
+
+		System.out.println("byte:" + tf);
+
 		int rf = (tf & 0xff);
-		
-		System.out.println("int:"+rf);
-		
+
+		System.out.println("int:" + rf);
+
 	}
-	
-	
-	
 
 }

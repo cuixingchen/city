@@ -1,9 +1,13 @@
 package com.hdsx.taxi.woxing.cqmsg.msg;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.Converter;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.DriverInfo;
@@ -16,6 +20,10 @@ import com.hdsx.taxi.woxing.cqmsg.msg.pojo.TaxiPointInfo;
  * 
  */
 public class Msg2010 extends AbsMsg {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(Msg2010.class);
 
 	List<TaxiPointInfo> list = new ArrayList<>();
 
@@ -35,7 +43,7 @@ public class Msg2010 extends AbsMsg {
 
 	@Override
 	protected byte[] bodytoBytes() {
-		ByteBuffer b = ByteBuffer.allocate(1024); // 1 kb 缓冲区
+		ByteBuffer b = ByteBuffer.allocate(4096); // 1 kb 缓冲区
 
 		for (TaxiPointInfo cp : list) {
 
@@ -50,6 +58,7 @@ public class Msg2010 extends AbsMsg {
 			b.put(b_company.array());
 
 			ByteBuffer b_phone = ByteBuffer.allocate(11);
+
 			b_phone.put(Converter.getBytes(cp.getDriver().getDriverPhone()));
 			b.put(b_phone.array());
 
@@ -65,8 +74,16 @@ public class Msg2010 extends AbsMsg {
 
 			// end 司机信息
 
-			b.put(Converter.unSigned32LongToBigBytes(cp.getLon()));
-			b.put(Converter.unSigned32LongToBigBytes(cp.getLat()));
+			long lon = CoordinateCodec.Coor2UInt(cp.getLon());
+			
+			b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec
+					.Coor2UInt(cp.getLon())));
+
+			b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec
+					.Coor2UInt(cp.getLat())));
+
+			// b.put(Converter.unSigned32LongToBigBytes(cp.getLon()));
+			// b.put(Converter.unSigned32LongToBigBytes(cp.getLat()));
 
 			b.put(cp.getState());
 		}
@@ -79,7 +96,6 @@ public class Msg2010 extends AbsMsg {
 		return result;
 	}
 
-	@Override
 	protected boolean bodyfrombytes(byte[] b) {
 
 		try {
@@ -88,8 +104,6 @@ public class Msg2010 extends AbsMsg {
 			int offset = this.head.getLength();
 
 			list = new ArrayList<TaxiPointInfo>();
-
-			System.out.println(b.length / 80);
 
 			for (int i = 0; i < b.length / 80; i++) {
 
@@ -117,10 +131,15 @@ public class Msg2010 extends AbsMsg {
 
 				cp.setDriver(di);
 
-				cp.setLon(Converter.toUInt32(b, offset));
+				long lon = Converter.bytes2Unsigned32Long(b, offset);
+		
+				cp.setLon(CoordinateCodec.Coor2Float(lon));
 				offset += 4;
 
-				cp.setLat(Converter.toUInt32(b, offset));
+				long lat = Converter.bytes2Unsigned32Long(b, offset);
+				cp.setLat(CoordinateCodec.Coor2Float(Converter
+						.bytes2Unsigned32Long(b, offset)));
+				// cp.setLat(Converter.toUInt32(b, offset));
 				offset += 4;
 
 				cp.setState(bf.get(offset));
@@ -138,4 +157,10 @@ public class Msg2010 extends AbsMsg {
 		return false;
 
 	}
+
+	@Override
+	public String toString() {
+		return "Msg2010 [list=" + list + "]";
+	}
+
 }

@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.Converter;
 import com.hdsx.taxi.woxing.cqmsg.FindEndFlag;
@@ -74,15 +75,17 @@ public class Msg1001 extends AbsMsg {
 		b.put(oua);
 		b.put((byte) 0x00);
 
-		b.put(Converter.unSigned32LongToBigBytes(order.getUseLng()));
-		b.put(Converter.unSigned32LongToBigBytes(order.getUseLat()));
+
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec.Coor2UInt(order.getUseLng())));
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec.Coor2UInt(order.getUseLat())));
 
 		byte[] oudt = Converter.getBytes(order.getDestination());
 		b.put(oudt);
 		b.put((byte) 0x00);
 
-		b.put(Converter.unSigned32LongToBigBytes(order.getDestLng()));
-		b.put(Converter.unSigned32LongToBigBytes(order.getDestLat()));
+		
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec.Coor2UInt(order.getDestLng())));
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec.Coor2UInt(order.getDestLat())));
 
 		byte[] our = Converter.getBytes(order.getRemark());
 		b.put(our);
@@ -133,18 +136,18 @@ public class Msg1001 extends AbsMsg {
 					- offset));
 			offset = stringEndIdx;
 			offset += 1;
-			order.setUseLng(Converter.toUInt32(b, offset));
+			order.setUseLng(CoordinateCodec.Coor2Float(Converter.toUInt32(b, offset)));
 			offset += 4;
-			order.setUseLat(Converter.toUInt32(b, offset));
+			order.setUseLat(CoordinateCodec.Coor2Float(Converter.toUInt32(b, offset)));
 			offset += 4;
 			stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
 			order.setDestination(Converter.toGBKString(b, offset, stringEndIdx
 					- offset));
 			offset = stringEndIdx;
 			offset += 1;
-			order.setDestLng(Converter.toUInt32(b, offset));
+			order.setDestLng(CoordinateCodec.Coor2Float(Converter.toUInt32(b, offset)));
 			offset += 4;
-			order.setDestLat(Converter.toUInt32(b, offset));
+			order.setDestLat(CoordinateCodec.Coor2Float(Converter.toUInt32(b, offset)));
 			offset += 4;
 			stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
 			order.setRemark(Converter.toGBKString(b, offset, stringEndIdx

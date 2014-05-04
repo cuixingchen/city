@@ -102,8 +102,8 @@ public class CarContainer {
 
 		if (logger.isDebugEnabled()) {
 			int size = map.size();
-			if (size % 100 == 0) {
-				int newsize = size / 100;
+			if (size % 10 == 0) {
+				int newsize = size / 10;
 				if (oldsize != newsize) {
 
 					this.oldsize = newsize;
