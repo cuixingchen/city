@@ -43,7 +43,8 @@ public class HandlerFactory {
 			logger.debug("getHandler(AbsMsg) - start:msgid :"+m.getHeader().getMsgid()); //$NON-NLS-1$
 		}
 
-		IHandler returnIHandler = map.get(m.getHeader().getMsgid());
+		Integer msgid = (int) m.getHeader().getMsgid();
+		IHandler returnIHandler = map.get(msgid);
 		if (logger.isDebugEnabled()) {
 			logger.debug("getHandler(AbsMsg) - end"); //$NON-NLS-1$
 		}

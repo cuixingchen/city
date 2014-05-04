@@ -366,7 +366,7 @@ public class Converter {
 	 * @return
 	 */
 	public static byte[] getBytes(String s) {
-		return s.getBytes(Charset.forName("GBK"));
+		return s==null?"".getBytes(Charset.forName("GBK")):s.getBytes(Charset.forName("GBK"));
 	}
 
 	/**

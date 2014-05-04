@@ -25,6 +25,7 @@ import com.hdsx.taxi.woxing.cqcityserver.socket.thread.HeartBeatThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReConnectedThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReSendMsgThread;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
+import com.hdsx.taxi.woxing.cqmsg.MessageID;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
@@ -112,7 +113,7 @@ public class TcpClient extends Thread {
 
 			logger.info("init(String, int, String, String) - ready to connect"+hostname+":"+hostport); //$NON-NLS-1$
 
-			b.connect(hostname, hostport).sync();
+			cf = b.connect(hostname, hostport).sync();
 
 		} catch (InterruptedException | IOException e) {
 			logger.error("init(String, int, String, String)", e); //$NON-NLS-1$
@@ -238,13 +239,21 @@ public class TcpClient extends Thread {
 	 * @param msg
 	 */
 	public void sendAnsworMsg(AbsMsg msg) {
+		short msgid = msg.getHeader().getMsgid();
+		if (msgid==MessageID.msg0x3003) {
+			return;
+		}
 		Msg0003 mout = new Msg0003();
 		mout.setMsgid(msg.getHeader().getMsgid());
 		mout.getHeader().setSn(msg.getHeader().getSn());
-		if (ch != null && ch.isOpen()) {
-			ChannelFuture cf = ch.write(mout);
+		if (chtx != null && chtx.channel().isOpen()) {
+			ChannelFuture cf = chtx.write(mout);
+			chtx.flush();
 			logger.debug("cf - :" + cf.toString() + cf.isSuccess());
 		}
 	}
 
+	public static void main(String[] args) {
+		TcpClient.getInstance().run();
+	}
 }
