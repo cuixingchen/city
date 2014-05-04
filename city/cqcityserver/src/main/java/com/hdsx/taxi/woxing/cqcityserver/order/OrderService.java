@@ -2,6 +2,7 @@ package com.hdsx.taxi.woxing.cqcityserver.order;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import net.sf.ehcache.Ehcache;
@@ -84,13 +85,13 @@ public class OrderService {
 		/**
 		 * 在历史消息中找到订单信息
 		 */
-		AbsMsg m = MsgCache.getInstance().getMsg(msg.getHeader().getSn());
+		AbsMsg m = MsgCache.getInstance().getMsg(msg.getHeader().getSn()+";"+msg.getMsgid());
 		if (m == null)
 			return;
 		Msg1001 m1 = (Msg1001) m;
 		OrderInfo oi = m1.getOrder();
 		long orderid_old = oi.getOrderid();
-		long orderid_new = msg.getHeader().getOrderid();
+		long orderid_new = m1.getHeader().getOrderid();
 
 		oi.setOrderid(orderid_new);
 		this.orderpool.remove(orderid_old);
@@ -100,7 +101,12 @@ public class OrderService {
 		MQMsg1008 mqmsg = new MQMsg1008();
 		mqmsg.setOldid(orderid_old);
 		mqmsg.setNewid(orderid_new);
+//		mqmsg.setNewid(new Date().getTime());
+		mqmsg.getHead().setCustomId("cuipengfei");
+		logger.info("mq更新订单号发送开始");
 		MQService.getInstance().sendMsg(mqmsg);
+		logger.info("mq更新订单发送结束");
+		
 
 		// 开始执行订单流程
 		if (OrderContants.IS_SELF) {

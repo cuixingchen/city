@@ -33,6 +33,14 @@ public class Msg1001 extends AbsMsg {
 	private OrderInfo order;
 	private int radius;
 
+	
+	
+	public Msg1001() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
 	@Override
 	public String toString() {
 		return "Msg1001 [order=" + order + ", radius=" + radius + ", head="

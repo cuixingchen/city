@@ -52,7 +52,8 @@ public class MsgCache {
 			return ;
 		}
 		int seq = msg.getHeader().getSn();
-		MsgObj m = MsgCache.getInstance().get(String.valueOf(seq));
+		short msgid=msg.getHeader().getMsgid();
+		MsgObj m = MsgCache.getInstance().get(String.valueOf(seq)+";"+String.valueOf(msgid));
 		if (m == null)
 			m = new MsgObj(msg);
 		else {
@@ -83,7 +84,7 @@ public class MsgCache {
 	 * @param key
 	 * @return
 	 */
-	public AbsMsg getMsg(int key) {
+	public AbsMsg getMsg(String key) {
 		Element e = this.cache.get(key);
 		MsgObj m =e == null ? null : (MsgObj)e.getObjectValue();
         return m==null?null:m.getMsg();  

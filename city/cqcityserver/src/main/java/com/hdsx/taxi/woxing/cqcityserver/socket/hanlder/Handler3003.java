@@ -35,6 +35,7 @@ public class Handler3003 implements IHandler {
 				return;
 			}
 
+			logger.info("msgid:"+msg.getMsgid());
 			if (msg.getMsgid()==MessageID.msg0x0002) {
 				return ;
 			}else if (msg.getMsgid()==MessageID.msg0x0001) {

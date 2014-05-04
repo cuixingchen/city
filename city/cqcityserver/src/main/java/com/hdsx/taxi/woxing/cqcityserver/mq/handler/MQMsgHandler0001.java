@@ -24,6 +24,7 @@ public class MQMsgHandler0001 implements IMQMsgHanlder {
 		Msg1001 out = new Msg1001();
 		OrderInfo oi = new OrderInfo();
 
+		oi.setOrderid(msg.getOrderId());
 		oi.setOrderType(msg.getTakeTaxiType());
 		oi.setTips(msg.getTips());
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
