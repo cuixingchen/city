@@ -9,7 +9,7 @@ public class TaxiPointInfo {
 	}
 
 	DriverInfo driver = new DriverInfo();
-	long lon, lat;
+	double lon, lat;
 	byte state;
 
 	public byte getState() {
@@ -28,19 +28,21 @@ public class TaxiPointInfo {
 		this.driver = driver;
 	}
 
-	public long getLon() {
+	public double getLon() {
 		return lon;
 	}
 
-	public void setLon(long lon) {
+	public void setLon(double lon) {
 		this.lon = lon;
 	}
 
-	public long getLat() {
+	public double getLat() {
 		return lat;
 	}
 
-	public void setLat(long lat) {
+	public void setLat(double lat) {
 		this.lat = lat;
 	}
+
+	
 }

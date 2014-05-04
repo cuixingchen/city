@@ -21,7 +21,7 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 			.getLogger(CQTcpCodec.class);
 
 	private static final byte FLAG = 0x7e;
-	ByteBuffer bf = ByteBuffer.allocate(1024);
+	ByteBuffer bf = ByteBuffer.allocate(4096);
 
 	// /**
 	// *
@@ -94,7 +94,7 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
 			List<Object> out) throws Exception {
-
+		logger.debug("收到消息,开始解码消息");
 		while (in.readableBytes() > 0) {
 			byte b = in.readByte();
 			if (b != FLAG) {

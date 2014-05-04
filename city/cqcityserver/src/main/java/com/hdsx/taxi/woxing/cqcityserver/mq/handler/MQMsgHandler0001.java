@@ -30,12 +30,12 @@ public class MQMsgHandler0001 implements IMQMsgHanlder {
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 		oi.setUseTime(df.format(msg.getGetOnTime()));
 		oi.setAddress(msg.getGetOnPlaceName());
-		oi.setUseLat(CoordinateCodec.Coor2UInt((float) msg.getGetOnLat()));
-		oi.setUseLng(CoordinateCodec.Coor2UInt((float) msg.getGetOnLon()));
+		oi.setUseLat(msg.getGetOnLat());
+		oi.setUseLng(msg.getGetOnLon());
 
 		oi.setDestination(msg.getGetOffPlaceName());
-		oi.setDestLat(CoordinateCodec.Coor2UInt((float) msg.getGetOffLat()));
-		oi.setDestLng(CoordinateCodec.Coor2UInt((float) msg.getGetOffLon()));
+		oi.setDestLat(msg.getGetOffLat());
+		oi.setDestLng(msg.getGetOffLon());
 		oi.setRemark(msg.getNotes());
 
 		PassengerInfo pi = new PassengerInfo();

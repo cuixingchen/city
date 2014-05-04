@@ -34,7 +34,7 @@ public class Handler2010 implements IHandler {
 			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
 		}
 
-		if (m.getClass().isInstance(Msg2010.class)) {
+		if (m instanceof Msg2010) {
 			Msg2010 msg = (Msg2010) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
 			List<TaxiPointInfo> l = msg.getList();
@@ -46,13 +46,13 @@ public class Handler2010 implements IHandler {
 				c.setLat(o.getLat());
 				c.setLon(o.getLon());
 				c.setLisencenumber(o.getDriver().getLicenseNumber());
-				c.setId(o.getDriver().getDriverSerial());
+				c.setId(o.getDriver().getLicenseNumber());
 				c.setDriverphone(o.getDriver().getDriverPhone());
 				c.setDriverid(o.getDriver().getDriverSerial());
 
 				c.setCreditLevel(getCreditLeveString(o.getDriver()
 						.getCreditLevel()));
-				LocationService.getInstance().update(c);				
+				LocationService.getInstance().update(c);
 				TaxiDistrbuteService.getInstance().update(c);
 			}
 

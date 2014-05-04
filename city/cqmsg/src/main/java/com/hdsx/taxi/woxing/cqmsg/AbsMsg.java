@@ -24,7 +24,7 @@ public abstract class AbsMsg implements IMsg {
 	/**
 	 * 
 	 */
-	ByteBuffer buffer = ByteBuffer.allocate(1024);
+	ByteBuffer buffer = ByteBuffer.allocate(4096);
 
 	protected MsgHeader head;
 
