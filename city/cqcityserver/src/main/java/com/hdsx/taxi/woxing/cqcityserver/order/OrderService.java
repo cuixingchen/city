@@ -91,7 +91,8 @@ public class OrderService {
 		Msg1001 m1 = (Msg1001) m;
 		OrderInfo oi = m1.getOrder();
 		long orderid_old = oi.getOrderid();
-		long orderid_new = m1.getHeader().getOrderid();
+		long orderid_new = msg.getHeader().getOrderid();
+		logger.info("new order id"+orderid_new);
 
 		oi.setOrderid(orderid_new);
 		this.orderpool.remove(orderid_old);
