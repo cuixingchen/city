@@ -142,8 +142,10 @@ public class OrderService {
 		// 找不到车的情况
 		if (l.size() == 0) {
 			MQMsg1009 m = new MQMsg1009();
+			m.getHead().setCustomId("customId");
 			m.setOrderid(oi.getOrderid());
 			m.setReasoncode((byte) 0);
+			m.setDescribtion("没有找到空车");
 			MQService.getInstance().sendMsg(m);
 			orderpool.remove(oi.getOrderid());
 			return;

@@ -84,7 +84,7 @@ public class MsgHeader implements Serializable {
 			this.flag = bf.get(offset);
 			offset += 1;
 
-			this.orderid = Converter.toUInt32(b, offset);
+			this.orderid = Converter.bigBytes2Unsigned32Long(b, offset);
 			offset += 4;
 
 			this.bodylen = bf.getShort(offset);
