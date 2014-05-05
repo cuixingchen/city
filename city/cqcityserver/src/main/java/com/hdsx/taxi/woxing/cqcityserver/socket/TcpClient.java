@@ -71,9 +71,36 @@ public class TcpClient extends Thread {
 	private boolean isLogined = false; // 是否登陆成功
 	public ChannelHandlerContext chtx;
 	public ChannelFuture cf;
+
+	private int connstate = 0;
+
+	public void reconnect() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("reconnect() - start"); //$NON-NLS-1$
+		}
+
+		if (this.connstate == 0)
+			init();
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("reconnect() - end"); //$NON-NLS-1$
+		}
+	}
 	
 	@Override
 	public void run() {
+		if (logger.isDebugEnabled()) {
+			logger.debug("run() - start"); //$NON-NLS-1$
+		}
+
+		init();
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("run() - end"); //$NON-NLS-1$
+		}
+	}
+
+	private void init() {
 		EventLoopGroup group = new NioEventLoopGroup();
 		// String path =
 		// TcpClient.class.getResource("/tcp.properties").getPath();
@@ -143,6 +170,7 @@ public class TcpClient extends Thread {
 			if (logger.isDebugEnabled()) {
 				logger.debug("loginOK(boolean) - 启动重新连接线程成功"); //$NON-NLS-1$
 			}
+			this.connstate = 1;
 		}
 	}
 
@@ -229,6 +257,14 @@ public class TcpClient extends Thread {
 	public void setCf(ChannelFuture cf) {
 		this.cf = cf;
 	}
+	public int getConnstate() {
+		return connstate;
+	}
+
+	public void setConnstate(int connstate) {
+		this.connstate = connstate;
+	}
+
 	public boolean isLogined() {
 		return isLogined;
 	}
