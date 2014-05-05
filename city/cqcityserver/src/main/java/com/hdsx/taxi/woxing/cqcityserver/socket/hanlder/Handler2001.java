@@ -26,7 +26,7 @@ public class Handler2001 implements IHandler {
 
 	@Override
 	public void doHandle(IMsg m) {
-		if (m.getClass().isInstance(Msg2001.class)) {
+		if (m instanceof Msg2001) {
 			Msg2001 msg = (Msg2001) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
 			OrderService.getInstance().onDriverAnswer(msg);

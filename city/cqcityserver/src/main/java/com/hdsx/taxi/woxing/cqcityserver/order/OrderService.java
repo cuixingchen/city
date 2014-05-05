@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -54,6 +55,9 @@ public class OrderService {
 	static OrderService obj;
 	Ehcache orderpool; // 订单缓存
 
+	private Timer timer;
+
+
 	public static OrderService getInstance() {
 		if (obj == null)
 			obj = new OrderService();
@@ -69,9 +73,9 @@ public class OrderService {
 
 	public void put(Msg1001 msg) {
 
-		// OrderObject o = new OrderObject();
-		// o.setOrder(msg.getOrder());
-		// this.orderpool.put(new Element(msg.getOrder().getOrderid(), o));
+		 OrderObject o = new OrderObject();
+		 o.setOrder(msg.getOrder());
+		 this.orderpool.put(new Element(msg.getOrder().getOrderid(), o));
 
 	}
 
@@ -89,14 +93,16 @@ public class OrderService {
 		if (m == null)
 			return;
 		Msg1001 m1 = (Msg1001) m;
+		OrderObject o = new OrderObject();
 		OrderInfo oi = m1.getOrder();
 		long orderid_old = oi.getOrderid();
 		long orderid_new = msg.getHeader().getOrderid();
 		logger.info("new order id"+orderid_new);
 
 		oi.setOrderid(orderid_new);
+		o.setOrder(oi);
 		this.orderpool.remove(orderid_old);
-		this.orderpool.put(new Element(oi.getOrderid(), oi)); // 将订单信息存入缓存
+		this.orderpool.put(new Element(oi.getOrderid(), o)); // 将订单信息存入缓存
 
 		// 发送订单号变更消息到总中心
 		MQMsg1008 mqmsg = new MQMsg1008();
@@ -154,10 +160,12 @@ public class OrderService {
 		// 向目标车辆发送抢单信息
 		Msg1101 m = new Msg1101();
 		m.setOrder(oi);
+		m.getHeader().setOrderid(oi.getOrderid());
 		m.setCount((short) l.size());
 		List<String> cars = new ArrayList<String>();
 		for (CarInfo c : l) {
-			cars.add(c.getLisencenumber());
+//			cars.add(c.getLisencenumber());
+			cars.add(c.getId());
 		}
 		m.setCarNumbers(cars);
 		TcpClient.getInstance().send(m);
@@ -165,33 +173,69 @@ public class OrderService {
 		/**
 		 * 等待一会看看是否有接收
 		 */
-		try {
-			Thread.sleep(OrderContants.CALLTAXI_MINWAITINGTIME * 1000l);
-		} catch (InterruptedException e) {
-			logger.error("等待出错：" + e);
-		}
-
-		Element e = this.orderpool.get(oi.getOrderid());
-		if (e == null) // 表示已经被处理
-			return;
-		OrderObject o = (OrderObject) e.getObjectValue();
-
-		/**
-		 * 无车应答时
-		 */
-		if (o.getDrivers().size() == 0) {
-			MQMsg1009 mq = new MQMsg1009();
-			mq.setOrderid(oi.getOrderid());
-			mq.setReasoncode((byte) 1);
-			MQService.getInstance().sendMsg(mq);
-			orderpool.remove(oi.getOrderid());
-			return;
-		}
-
-		doSucess(o);
-
+//		try {
+//			Thread.sleep(OrderContants.CALLTAXI_MINWAITINGTIME * 1000l);
+//		} catch (InterruptedException e) {
+//			logger.error("等待出错：" + e);
+//		}
+		timer = new Timer();
+		logger.info("Timer开始");
+		timer.schedule(new DoResult(orderpool, oi), OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/2, OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*2);//在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
 	}
 
+	class DoResult extends  java.util.TimerTask{
+
+		private Ehcache orderpool;
+		private OrderInfo oi;
+
+		public DoResult(Ehcache orderpool, OrderInfo oi) {
+			super();
+			this.orderpool = orderpool;
+			this.oi = oi;
+		}
+
+		@Override
+		public void run() {
+//			try {
+//				Thread.sleep(OrderContants.CALLTAXI_MINWAITINGTIME * 1000l);
+//			} catch (InterruptedException e) {
+//				logger.error("等待出错：" + e);
+//			}
+			logger.info("DoResult:run");
+			Element e = orderpool.get(oi.getOrderid());
+			if (e == null) // 表示已经被处理
+				return;
+			OrderObject o = (OrderObject) e.getObjectValue();
+//			Ehcache orderpool1=CacheManagerUtil.getInstance().getCm()
+//			.getEhcache("orderpoolcache");
+//
+//			Element e1 = orderpool1.get(oi.getOrderid());
+//			if (e1 == null) // 表示已经被处理
+//				return;
+//			OrderObject o1 = (OrderObject) e1.getObjectValue();
+			
+			/**
+			 * 无车应答时
+			 */
+			if (o.getDrivers().size() == 0) {
+				MQMsg1009 mq = new MQMsg1009();
+				mq.setOrderid(oi.getOrderid());
+				mq.getHead().setCustomId("customId");
+				mq.setReasoncode((byte) 1);
+				mq.setDescribtion("没有司机抢单");
+				MQService.getInstance().sendMsg(mq);
+				orderpool.remove(oi.getOrderid());
+				return;
+			}
+
+			doSucess(o);
+			timer.cancel();
+		}
+		
+	}
+	
+	
+	
 	/**
 	 * 处理成功的订单对象，包括想司机发送消息和通知乘客
 	 * 
@@ -252,7 +296,7 @@ public class OrderService {
 		int rad = OrderContants.CALLTAXI_RAD_MIN;
 
 		List<CarInfo> l = LocationService.getInstance()
-				.getEmptycarByDistance(oi.getUseLng(), oi.getDestLat(),
+				.getEmptycarByDistance(oi.getUseLng(), oi.getUseLat(),
 						OrderContants.CALLTAXI_RAD_MIN);
 		/**
 		 * 循环找车，直到找到车
@@ -261,7 +305,7 @@ public class OrderService {
 				&& rad <= OrderContants.CALLTAXI_RAD_MAX) {
 			rad += OrderContants.CALLTAXI_RAD_STEP;
 			l = LocationService.getInstance().getEmptycarByDistance(
-					oi.getUseLng(), oi.getDestLat(),
+					oi.getUseLng(), oi.getUseLat(),
 					OrderContants.CALLTAXI_RAD_MIN);
 		}
 
@@ -310,7 +354,9 @@ public class OrderService {
 				TcpClient.getInstance().send(m);
 				return;
 			}
-			this.orderpool.put(e);
+			this.orderpool.remove(orderid);
+			o.getOrder().setAddress("日");
+			this.orderpool.put(new Element(orderid, o));
 
 			if (o.getDrivers().size() >= OrderContants.CALLTAXI_ORDER_MAXCARS) // 当抢单司机比较多时直接处理
 			{
