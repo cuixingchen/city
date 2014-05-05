@@ -4,7 +4,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
-import com.hdsx.taxi.woxing.cqmsg.msg.Msg0002;
 
 public class ReConnectedThread {
 	private Timer timer = new Timer();
@@ -19,7 +18,7 @@ public class ReConnectedThread {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				TcpClient.getInstance().start();
+				TcpClient.getInstance().reconnect();
 			}
 		}, dalay, period);
 	}

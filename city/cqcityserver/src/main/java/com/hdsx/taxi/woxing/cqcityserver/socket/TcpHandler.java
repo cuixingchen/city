@@ -64,6 +64,7 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		super.channelInactive(ctx);
 		TcpClient.getInstance().getChtx().close();
+		TcpClient.getInstance().setConnstate(0);
 	}
 
 	/**
