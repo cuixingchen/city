@@ -2,7 +2,6 @@ package com.hdsx.taxi.woxing.cqcityserver.order;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 
@@ -170,36 +169,10 @@ public class OrderService {
 		m.setCarNumbers(cars);
 		TcpClient.getInstance().send(m);
 
-		/**
-		 * 等待一会看看是否有接收
-		 */
-		try {
-//			logger.info("doWithOrder(sleep) - =" + Thread.class); //$NON-NLS-1$
-			Thread.sleep(OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/4);
-		} catch (InterruptedException e) {
-			logger.error("等待出错：" + e);
-		}
-		Element e = orderpool.get(oi.getOrderid());
-		if (e == null) // 表示已经被处理
-			return;
-		OrderObject o = (OrderObject) e.getObjectValue();
-		/**
-		 * 无车应答时
-		 */
-		if (o.getDrivers().size() == 0) {
-			MQMsg1009 mq = new MQMsg1009();
-			mq.setOrderid(oi.getOrderid());
-			mq.getHead().setCustomId("customId");
-			mq.setReasoncode((byte) 1);
-			mq.setDescribtion("没有司机抢单");
-			MQService.getInstance().sendMsg(mq);
-			orderpool.remove(oi.getOrderid());
-			return;
-		}
-		doSucess(o);
-//		timer = new Timer();
-//		logger.info("Timer开始");
-//		timer.schedule(new DoResult(orderpool, oi), OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/2, OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*2);//在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
+		
+		timer = new Timer();
+		logger.info("Timer开始");
+		timer.schedule(new DoResult(orderpool, oi), OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/2, OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*2);//在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
 	}
 
 	class DoResult extends  java.util.TimerTask{
@@ -215,23 +188,11 @@ public class OrderService {
 
 		@Override
 		public void run() {
-//			try {
-//				Thread.sleep(OrderContants.CALLTAXI_MINWAITINGTIME * 1000l);
-//			} catch (InterruptedException e) {
-//				logger.error("等待出错：" + e);
-//			}
-			logger.info("DoResult:run");
+			logger.debug("DoResult:run");
 			Element e = orderpool.get(oi.getOrderid());
 			if (e == null) // 表示已经被处理
 				return;
 			OrderObject o = (OrderObject) e.getObjectValue();
-//			Ehcache orderpool1=CacheManagerUtil.getInstance().getCm()
-//			.getEhcache("orderpoolcache");
-//
-//			Element e1 = orderpool1.get(oi.getOrderid());
-//			if (e1 == null) // 表示已经被处理
-//				return;
-//			OrderObject o1 = (OrderObject) e1.getObjectValue();
 			
 			/**
 			 * 无车应答时
@@ -282,10 +243,18 @@ public class OrderService {
 		// 通知乘客
 		MQMsg1001 msg_p = new MQMsg1001();
 
+		msg_p.getHead().setCustomId("customid");
 		msg_p.setOrderId(o.getOrder().getOrderid());
+		msg_p.setColor("红色");
+		msg_p.setCommpany("公司A");
+		msg_p.setDriverid(m.getCertificate());
+		msg_p.setLon(m.getLng());
+		msg_p.setLat(m.getLat());
+		msg_p.setName("司机id");
 		msg_p.setNumber(m.getCarNumber());
 		msg_p.setPhone(m.getPhone());
-
+		msg_p.setTime(m.getBcdtime());
+		msg_p.setType("车型");
 		MQService.getInstance().sendMsg(msg_p);
 		// msg_p.setName(m.get);
 

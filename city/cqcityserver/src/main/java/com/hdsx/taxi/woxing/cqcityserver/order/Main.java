@@ -11,13 +11,13 @@ import com.hdsx.taxi.woxing.mqutil.MQService;
 public class Main {
 
 	public static void main(String[] args) {
-//		try {
-//			MQService.getInstance().initcity(new CQMQMessageListener());
-//		} catch (JMSException e1) {
-//			e1.printStackTrace();
-//		} catch (IOException e1) {
-//			e1.printStackTrace();
-//		}
+		try {
+			MQService.getInstance().initcity(new CQMQMessageListener());
+		} catch (JMSException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		TcpClient.getInstance().run();		
 		OrderService.getInstance();
 		
