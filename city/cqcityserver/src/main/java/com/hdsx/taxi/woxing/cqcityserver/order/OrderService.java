@@ -34,6 +34,7 @@ import com.hdsx.taxi.woxing.mqutil.MQService;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0002;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1001;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1004;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1008;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1009;
@@ -155,24 +156,35 @@ public class OrderService {
 			orderpool.remove(oi.getOrderid());
 			return;
 		}
+		Element e = orderpool.get(oi.getOrderid());
+		if(e!=null){
+			OrderObject o=(OrderObject) e.getObjectValue();
+			if(o.getState()==1){//订单已经取消
+				orderpool.remove(oi.getOrderid());
+				return;
+			}else{
+				// 向目标车辆发送抢单信息
+				Msg1101 m = new Msg1101();
+				m.setOrder(oi);
+				m.getHeader().setOrderid(oi.getOrderid());
+				m.setCount((short) l.size());
+				List<String> cars = new ArrayList<String>();
+				for (CarInfo c : l) {
+//					cars.add(c.getLisencenumber());
+					cars.add(c.getId());
+				}
+				m.setCarNumbers(cars);
+				TcpClient.getInstance().send(m);
 
-		// 向目标车辆发送抢单信息
-		Msg1101 m = new Msg1101();
-		m.setOrder(oi);
-		m.getHeader().setOrderid(oi.getOrderid());
-		m.setCount((short) l.size());
-		List<String> cars = new ArrayList<String>();
-		for (CarInfo c : l) {
-//			cars.add(c.getLisencenumber());
-			cars.add(c.getId());
+				
+				timer = new Timer();
+				logger.info("Timer开始");
+				timer.schedule(new DoResult(orderpool, oi), OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/2, OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*2);//在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
+			}
+		}else{
+			return;//订单已经处理完
 		}
-		m.setCarNumbers(cars);
-		TcpClient.getInstance().send(m);
-
 		
-		timer = new Timer();
-		logger.info("Timer开始");
-		timer.schedule(new DoResult(orderpool, oi), OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/2, OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*2);//在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
 	}
 
 	class DoResult extends  java.util.TimerTask{
@@ -387,7 +399,14 @@ public class OrderService {
 			TcpClient.getInstance().send(m);
 
 		}
-
+		
+		//通知中心订单已经取消
+		MQMsg1003 mqmsg = new MQMsg1003("customid");
+		mqmsg.setOrderId(msg.getOrderId());
+		mqmsg.setCancle( (byte) 0);//0:取消成,1:取消失败
+		mqmsg.setExplain("取消");
+		MQService.getInstance().sendMsg(mqmsg);
+		
 	}
 
 	/**
