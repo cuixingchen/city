@@ -140,7 +140,8 @@ public class TcpClient extends Thread {
 
 			logger.info("init(String, int, String, String) - ready to connect"+hostname+":"+hostport); //$NON-NLS-1$
 
-			cf = b.connect(hostname, hostport).sync();
+			b.connect(hostname, hostport).sync();
+//			cf.channel().closeFuture().sync();
 
 		} catch (InterruptedException | IOException e) {
 			logger.error("init(String, int, String, String)", e); //$NON-NLS-1$

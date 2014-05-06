@@ -1,6 +1,5 @@
 package com.hdsx.taxi.woxing.cqcityserver.socket;
 
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
@@ -18,7 +17,7 @@ import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
  * 
  */
 public class TcpHandler extends ChannelInboundHandlerAdapter {
-	
+
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
@@ -27,15 +26,24 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 		}
 
 		try {
-			if (msg instanceof AbsMsg){
+			if (msg instanceof AbsMsg) {
 
-				AbsMsg m = (AbsMsg) msg;
-				IHandler handler = HandlerFactory.getHandler(m);
-				if (handler != null) {
-					handler.doHandle(m);
-				}
+				final AbsMsg m = (AbsMsg) msg;
+
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						IHandler handler = HandlerFactory.getHandler(m);
+						if (handler != null) {
+							handler.doHandle(m);
+						}
+
+					}
+				}).run();
 				TcpClient.getInstance().sendAnsworMsg(m);
 			}
+
 		} finally {
 			ReferenceCountUtil.release(msg);
 		}
@@ -54,7 +62,7 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 		super.channelActive(ctx);
 		TcpClient.getInstance().setChtx(ctx);
 		TcpClient.getInstance().login();
-		
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("channelActive(ChannelHandlerContext) - end"); //$NON-NLS-1$
 		}

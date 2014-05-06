@@ -173,14 +173,33 @@ public class OrderService {
 		/**
 		 * 等待一会看看是否有接收
 		 */
-//		try {
-//			Thread.sleep(OrderContants.CALLTAXI_MINWAITINGTIME * 1000l);
-//		} catch (InterruptedException e) {
-//			logger.error("等待出错：" + e);
-//		}
-		timer = new Timer();
-		logger.info("Timer开始");
-		timer.schedule(new DoResult(orderpool, oi), OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/2, OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*2);//在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
+		try {
+//			logger.info("doWithOrder(sleep) - =" + Thread.class); //$NON-NLS-1$
+			Thread.sleep(OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/4);
+		} catch (InterruptedException e) {
+			logger.error("等待出错：" + e);
+		}
+		Element e = orderpool.get(oi.getOrderid());
+		if (e == null) // 表示已经被处理
+			return;
+		OrderObject o = (OrderObject) e.getObjectValue();
+		/**
+		 * 无车应答时
+		 */
+		if (o.getDrivers().size() == 0) {
+			MQMsg1009 mq = new MQMsg1009();
+			mq.setOrderid(oi.getOrderid());
+			mq.getHead().setCustomId("customId");
+			mq.setReasoncode((byte) 1);
+			mq.setDescribtion("没有司机抢单");
+			MQService.getInstance().sendMsg(mq);
+			orderpool.remove(oi.getOrderid());
+			return;
+		}
+		doSucess(o);
+//		timer = new Timer();
+//		logger.info("Timer开始");
+//		timer.schedule(new DoResult(orderpool, oi), OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/2, OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*2);//在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
 	}
 
 	class DoResult extends  java.util.TimerTask{
@@ -354,9 +373,11 @@ public class OrderService {
 				TcpClient.getInstance().send(m);
 				return;
 			}
-			this.orderpool.remove(orderid);
-			o.getOrder().setAddress("日");
-			this.orderpool.put(new Element(orderid, o));
+			
+			this.orderpool.replace(e);
+			
+//			this.orderpool.remove(orderid);
+//			this.orderpool.put(new Element(orderid, o));
 
 			if (o.getDrivers().size() >= OrderContants.CALLTAXI_ORDER_MAXCARS) // 当抢单司机比较多时直接处理
 			{
