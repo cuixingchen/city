@@ -31,14 +31,15 @@ public class Handler2011 implements IHandler {
 			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
 		}
 
-		if (m.getClass().isInstance(Msg2011.class)) {
+		if (m instanceof Msg2011) {
 			Msg2011 msg = (Msg2011) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
 			MQMsg1005 mqmsg = new MQMsg1005();
+			mqmsg.getHead().setCustomId("customid");
 			mqmsg.setOrderid(msg.getHeader().getOrderid());
 			mqmsg.setCarLicensenumber(msg.getCarNumber());
-			mqmsg.setLat(CoordinateCodec.Coor2Float(msg.getLat()));
-			mqmsg.setLon(CoordinateCodec.Coor2Float(msg.getLng()));
+			mqmsg.setLat(msg.getLat());
+			mqmsg.setLon(msg.getLng());
 			mqmsg.setTime(msg.getBcdtime());
 			MQService.getInstance().sendMsg(mqmsg);
 		}

@@ -467,16 +467,6 @@ public class OrderService {
 	 */
 	public void getorderState(MQMsg0002 mqmsg){
 		long orderId=mqmsg.getOrderId();
-//		Element e = this.orderpool.get(orderId);
-//		if (e != null) // 表示订单正在处理过程中
-//		{
-//
-//			OrderObject o = (OrderObject) e.getObjectValue();
-//			o.setState((byte) 2);
-//			this.orderpool.put(e);
-//		}else{
-//			
-//		}
 		Msg1015 msg=new Msg1015();
 		msg.getHeader().setOrderid(orderId);
 		TcpClient.getInstance().send(msg);

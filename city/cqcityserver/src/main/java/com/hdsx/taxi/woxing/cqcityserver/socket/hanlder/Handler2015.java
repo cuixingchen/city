@@ -29,7 +29,7 @@ public class Handler2015 implements IHandler {
 			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
 		}
 
-		if (m.getClass().isInstance(Msg2015.class)) {
+		if (m instanceof Msg2015) {
 			Msg2015 msg = (Msg2015) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
 			MQMsg1002 mqmsg = new MQMsg1002();

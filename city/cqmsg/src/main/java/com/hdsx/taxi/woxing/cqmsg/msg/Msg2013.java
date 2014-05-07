@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.Converter;
 import com.hdsx.taxi.woxing.cqmsg.MessageID;
@@ -28,8 +29,8 @@ public class Msg2013 extends AbsMsg {
 	private static final Logger logger = LoggerFactory
 			.getLogger(Msg2013.class);
 
-	private int lng; // 经度
-	private int lat; // 纬度
+	private double lng; // 经度
+	private double lat; // 纬度
 	private String bcdtime; // 时间 yyyymmddhhnnss
 
 	@Override
@@ -46,8 +47,8 @@ public class Msg2013 extends AbsMsg {
 	protected byte[] bodytoBytes() {
 		ByteBuffer b = ByteBuffer.allocate(1024); // 1 kb 缓冲区
 
-		b.put(Converter.unSigned32LongToBigBytes(lng));
-		b.put(Converter.unSigned32LongToBigBytes(lat));
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec.Coor2UInt(lng)));
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec.Coor2UInt(lat)));
 
 		b.put(Converter.str2BCD(bcdtime));
 
@@ -66,10 +67,12 @@ public class Msg2013 extends AbsMsg {
 
 			// ByteBuffer bf = ByteBuffer.wrap(b);
 			int offset = this.head.getLength();
-			lng = Converter.toUInt32(b, offset);
+			lng = CoordinateCodec.Coor2Float(Converter
+					.bytes2Unsigned32Long(b, offset));
 			offset += 4;
 
-			lat = Converter.toUInt32(b, offset);
+			lat = CoordinateCodec.Coor2Float(Converter
+					.bytes2Unsigned32Long(b, offset));
 			offset += 4;
 
 			bcdtime = Converter.bcd2Str(b, offset, 7);
@@ -84,19 +87,21 @@ public class Msg2013 extends AbsMsg {
 
 	}
 
-	public int getLng() {
+
+
+	public double getLng() {
 		return lng;
 	}
 
-	public void setLng(int lng) {
+	public void setLng(double lng) {
 		this.lng = lng;
 	}
 
-	public int getLat() {
+	public double getLat() {
 		return lat;
 	}
 
-	public void setLat(int lat) {
+	public void setLat(double lat) {
 		this.lat = lat;
 	}
 
