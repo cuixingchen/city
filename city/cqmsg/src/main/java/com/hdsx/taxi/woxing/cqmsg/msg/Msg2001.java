@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.Converter;
 import com.hdsx.taxi.woxing.cqmsg.MessageID;
@@ -31,8 +32,8 @@ public class Msg2001 extends AbsMsg{
 	private String phone ; // 手机号
 	private String certificate ; // 驾驶员的从业资格证号
 	private String bcdtime ; // 抢单时间 yyyymmddhhnnss 
-	private int lng ;  // 经度
-	private int lat ; // 纬度
+	private double lng ;  // 经度
+	private double lat ; // 纬度
 	
 	@Override
 	protected int getMsgID() {
@@ -59,8 +60,13 @@ public class Msg2001 extends AbsMsg{
 		
 		b.put(Converter.str2BCD(bcdtime));
 		
-		b.put(Converter.unSigned32LongToBigBytes(lng));
-		b.put(Converter.unSigned32LongToBigBytes(lat));
+//		b.put(Converter.unSigned32LongToBigBytes(lng));
+//		b.put(Converter.unSigned32LongToBigBytes(lat));
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec
+				.Coor2UInt(lng)));
+
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec
+				.Coor2UInt(lat)));
 		
 		
 		// 把当前 buffer 内容转换成 byte []
@@ -91,11 +97,14 @@ public class Msg2001 extends AbsMsg{
 		bcdtime = Converter.bcd2Str(b, offset, 7);
 		offset += 7 ;
 		
-		lng = Converter.toUInt32(b, offset);
+//		lng = Converter.toUInt32(b, offset);
+		lng=CoordinateCodec.Coor2Float(Converter
+				.bytes2Unsigned32Long(b, offset));
 		offset += 4 ;
 		
-		lat = Converter.toUInt32(b, offset);
-		
+//		lat = Converter.toUInt32(b, offset);
+		lat=CoordinateCodec.Coor2Float(Converter
+				.bytes2Unsigned32Long(b, offset));
 		return true;
 		} catch (Exception ex) {
 
@@ -137,20 +146,22 @@ public class Msg2001 extends AbsMsg{
 		this.bcdtime = bcdtime;
 	}
 
-	public int getLng() {
+	public double getLng() {
 		return lng;
 	}
 
-	public void setLng(int lng) {
+	public void setLng(double lng) {
 		this.lng = lng;
 	}
 
-	public int getLat() {
+	public double getLat() {
 		return lat;
 	}
 
-	public void setLat(int lat) {
+	public void setLat(double lat) {
 		this.lat = lat;
 	}
+
+	
 
 }
