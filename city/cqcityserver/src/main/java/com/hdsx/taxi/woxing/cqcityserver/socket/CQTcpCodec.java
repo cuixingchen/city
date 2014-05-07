@@ -106,8 +106,9 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 					bf.position(0);
 					bf.get(bytes);
 					AbsMsg msg = MsgFactory.genMsg(bytes);
+					logger.info("收到消息-" + getBytesHexString(bytes));
 					msg.fromBytes(bytes);
-					logger.debug("收到消息:" + msg.toString());
+					logger.debug("decode 收到消息:" + msg.toString());
 					if (msg != null) {
 						out.add(msg);
 					}
@@ -118,4 +119,11 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 
 	}
 
+	static String getBytesHexString(byte[] bytes) {
+		StringBuilder sb = new StringBuilder();
+		for (Byte b : bytes) {
+			sb.append("[" + Integer.toHexString(b) + "]");
+		}
+		return sb.toString();
+	}
 }
