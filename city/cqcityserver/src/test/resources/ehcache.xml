@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+
+<ehcache name="msgpoolcache" updateCheck="false">
+	<defaultCache maxElementsInMemory="10000" eternal="false"
+		timeToIdleSeconds="1200" timeToLiveSeconds="1200" diskSpoolBufferSizeMB="30"
+		maxElementsOnDisk="10000000" diskExpiryThreadIntervalSeconds="120"
+		memoryStoreEvictionPolicy="FIFO">
+		<persistence strategy="localTempSwap" />
+	</defaultCache>
+
+
+
+
+	<!-- 订单缓存池缓存 -->
+	<cache name="orderpoolcache" maxElementsInMemory="10000" eternal="false"
+		timeToIdleSeconds="1200" timeToLiveSeconds="1200" diskSpoolBufferSizeMB="30"
+		maxElementsOnDisk="10000000" diskExpiryThreadIntervalSeconds="120"
+		memoryStoreEvictionPolicy="FIFO"></cache>		
+
+
+	<!-- 缓存池缓存 -->
+	<cache name="tcpmsgcache" maxElementsInMemory="10000" eternal="false"
+		timeToIdleSeconds="1200" timeToLiveSeconds="1200" diskSpoolBufferSizeMB="30"
+		maxElementsOnDisk="10000000" diskExpiryThreadIntervalSeconds="120"
+		memoryStoreEvictionPolicy="FIFO"></cache>	
+
+
+
+</ehcache>

@@ -26,6 +26,7 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg2010;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2011;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2012;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2013;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg2015;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg3003;
 
 /**
@@ -143,7 +144,7 @@ public class MsgFactory {
 			m = new Msg2013();
 			break;
 		case MessageID.msg0x2015:
-			m = new Msg2001();
+			m = new Msg2015();
 			break;
 		case MessageID.msg0x3003:
 			m = new Msg3003();

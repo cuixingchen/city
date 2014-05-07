@@ -24,8 +24,8 @@ public class Msg1015 extends AbsMsg {
 
 	@Override
 	protected byte[] bodytoBytes() {
-		byte[] result = new byte[0];
-		return result;
+		return new byte[0];
+
 	}
 
 	@Override

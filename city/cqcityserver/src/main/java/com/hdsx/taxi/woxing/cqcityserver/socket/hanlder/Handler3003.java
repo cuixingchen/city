@@ -31,7 +31,8 @@ public class Handler3003 implements IHandler {
 			
 			// 收到失败的消息应答时
 			if (msg.getError() != 0) {
-				logger.error("收到应答错误消息Msg3003：" + m.toString());
+				logger.error("收到应答错误消息Msg3003：" + msg.getErrorDesc() +" msgid:"+msg.getMsgid());
+				
 				return;
 			}
 
