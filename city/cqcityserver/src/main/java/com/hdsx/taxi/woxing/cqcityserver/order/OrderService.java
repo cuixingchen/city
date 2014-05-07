@@ -22,6 +22,7 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg1001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1002;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1003;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1004;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg1007;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1015;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1101;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
@@ -383,7 +384,7 @@ public class OrderService {
 
 			OrderObject o = (OrderObject) e.getObjectValue();
 			o.setState((byte) 1);
-			this.orderpool.put(e);
+			this.orderpool.replace(e);
 		} else { // 表示订单处理完成，提交到电招中心取消订单
 
 			Msg1002 m = new Msg1002();
@@ -401,7 +402,7 @@ public class OrderService {
 		}
 		
 		//通知中心订单已经取消
-		MQMsg1003 mqmsg = new MQMsg1003("customid");
+		MQMsg1003 mqmsg = new MQMsg1003(msg.getHead().getCustomId());
 		mqmsg.setOrderId(msg.getOrderId());
 		mqmsg.setCancle( (byte) 0);//0:取消成,1:取消失败
 		mqmsg.setExplain("取消");
@@ -433,7 +434,7 @@ public class OrderService {
 
 			OrderObject o = (OrderObject) e.getObjectValue();
 			o.setState((byte) 2);
-			this.orderpool.put(e);
+			this.orderpool.replace(e);
 		}
 
 		else {
@@ -441,7 +442,7 @@ public class OrderService {
 			 * 表示订单已经处理完成
 			 */
 
-			MQMsg1004 mqmsg = new MQMsg1004();
+			MQMsg1004 mqmsg = new MQMsg1004("customid");
 
 			mqmsg.setCarNumber(msg.getCarNumber());
 			mqmsg.setDriverid(msg.getCertificate());
@@ -451,6 +452,13 @@ public class OrderService {
 			mqmsg.setOrderid(msg.getHeader().getOrderid());
 			MQService.getInstance().sendMsg(mqmsg);
 		}
+		//回应电召平台，司机取消订单成功
+		Msg1007 m = new Msg1007();
+		m.getHeader().setOrderid(oid);
+		m.setErrorNumber((short) 0);//错误号 0表示成功， 1表示失败
+		m.setErrorDesc("成功");
+		TcpClient.getInstance().send(m);
+		
 	}
 	
 	/**

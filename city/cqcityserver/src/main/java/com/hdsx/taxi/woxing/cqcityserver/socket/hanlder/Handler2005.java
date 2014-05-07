@@ -30,7 +30,7 @@ public class Handler2005 implements IHandler {
 			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
 		}
 
-		if (m.getClass().isInstance(Msg2005.class)) {
+		if (m instanceof Msg2005) {
 			Msg2005 msg = (Msg2005) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
 
