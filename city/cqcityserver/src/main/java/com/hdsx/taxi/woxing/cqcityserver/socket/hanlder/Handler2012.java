@@ -30,10 +30,11 @@ public class Handler2012 implements IHandler {
 			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
 		}
 
-		if (m.getClass().isInstance(Msg2012.class)) {
+		if (m instanceof Msg2012) {
 			Msg2012 msg = (Msg2012) m;
 			TcpClient.getInstance().sendAnsworMsg(msg);
 			MQMsg1006 mqmsg = new MQMsg1006();
+			mqmsg.getHead().setCustomId("customid");
 			mqmsg.setOrderid(msg.getHeader().getOrderid());
 			mqmsg.setCarlicensenumber(msg.getCarNumber());
 
