@@ -9,6 +9,7 @@ import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.MessageID;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg3003;
 import com.hdsx.taxi.woxing.mqutil.MQService;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0007;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1003;
 import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
@@ -53,6 +54,16 @@ public class Handler3003 implements IHandler {
 				{
 					// 通知中心订单已经取消
 					MQMsg1003 mqmsg = new MQMsg1003();
+					mqmsg.setOrderId(msg.getHeader().getOrderid());
+					mqmsg.setCancle(msg.getError());// 0:取消成,1:取消失败
+//					mqmsg.setExplain("取消");
+					MQService.getInstance().sendMsg(mqmsg);
+					
+				}
+				else if(msg.getMsgid()==MessageID.msg0x0007)  //乘客上车返回结果					
+				{
+					// 通知中心订单已经取消
+					MQMsg0007 mqmsg = new MQMsg0007();
 					mqmsg.setOrderId(msg.getHeader().getOrderid());
 					mqmsg.setCancle(msg.getError());// 0:取消成,1:取消失败
 //					mqmsg.setExplain("取消");
