@@ -11,19 +11,28 @@ import com.hdsx.taxi.woxing.cqcityserver.order.OrderService;
  * @author Steven
  * 
  */
-public class DoOrderHandleThread {
+public class DoOrderHandleThread extends AbsThread {
+	static DoOrderHandleThread obj;
+
+	public static DoOrderHandleThread getInstance() {
+		if (obj == null)
+			obj = new DoOrderHandleThread();
+		return obj;
+	}
+
 	private Timer timer = new Timer();
 
-	public void run(long dalay, long period) {
+	@Override
+	public void runThread(long delay, long period) {
 		timer.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
-
 				OrderService.getInstance().doOrderHandle();
 			}
 
-		}, dalay, period);
+		}, delay, period);
+
 	}
 
 }

@@ -6,7 +6,15 @@ import java.util.TimerTask;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0002;
 
-public class HeartBeatThread {
+public class HeartBeatThread extends AbsThread {
+	static HeartBeatThread obj;
+
+	public static HeartBeatThread getInstance() {
+		if (obj == null)
+			obj = new HeartBeatThread();
+		return obj;
+	}
+
 	private Timer timer = new Timer();
 
 	/**
@@ -15,12 +23,15 @@ public class HeartBeatThread {
 	 * @param dalay
 	 * @param period
 	 */
-	public void run(long dalay, long period) {
+
+	@Override
+	public void runThread(long delay, long period) {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				TcpClient.getInstance().sendWithoutCache(new Msg0002());
 			}
-		}, dalay, period);
+		}, delay, period);
+
 	}
 }

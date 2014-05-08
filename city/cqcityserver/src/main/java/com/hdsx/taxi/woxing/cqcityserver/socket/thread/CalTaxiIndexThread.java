@@ -16,16 +16,38 @@ import com.hdsx.taxi.woxing.location.util.Config;
  * 
  */
 
-public class CalTaxiIndexThread {
+public class CalTaxiIndexThread extends AbsThread {
 	/**
 	 * Logger for this class
 	 */
 	private static final Logger logger = LoggerFactory
 			.getLogger(CalTaxiIndexThread.class);
 
+	static CalTaxiIndexThread obj;
+
+	public static CalTaxiIndexThread getInstance() {
+		if (obj == null)
+			obj = new CalTaxiIndexThread();
+		return obj;
+	}
+
 	private Timer timer = new Timer();
 
-	public void run() {
+	// public void run() {
+	// if (!Config.TAXI_DISTRIBUTE_ENABLED)
+	// return;
+	// timer.schedule(new TimerTask() {
+	// @Override
+	// public void run() {
+	// logger.info("开始重新计算打车指数");
+	// TaxiDistrbuteService.getInstance().recal(Config.ISGENERATETIFF);
+	// logger.info("计算打车指数成功");
+	// }
+	// }, Config.TAXI_DISTRIBUTE_DELAY, Config.TAXI_DISTRIBUTE_DELAY);
+	// }
+
+	@Override
+	public void runThread(long delay, long period) {
 		if (!Config.TAXI_DISTRIBUTE_ENABLED)
 			return;
 		timer.schedule(new TimerTask() {
@@ -36,5 +58,6 @@ public class CalTaxiIndexThread {
 				logger.info("计算打车指数成功");
 			}
 		}, Config.TAXI_DISTRIBUTE_DELAY, Config.TAXI_DISTRIBUTE_DELAY);
+
 	}
 }

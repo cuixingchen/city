@@ -171,17 +171,18 @@ public class TcpClient extends Thread {
 			if (logger.isDebugEnabled()) {
 				logger.debug("loginOK(boolean) - 启动线程"); //$NON-NLS-1$
 			}
-			new ReSendMsgThread().run(this.resendmsgdealy * 1000,
-					this.resendmsgdealy * 1000);// 启动发送缓存消息线程
 
-			new HeartBeatThread().run(this.heartbeatdelay * 1000,
+			ReSendMsgThread.getInstance().run(this.resendmsgdealy * 1000,
+					this.resendmsgdealy * 1000);
+
+			HeartBeatThread.getInstance().run(this.heartbeatdelay * 1000,
 					this.heartbeatdelay * 1000);
-			new ReConnectedThread().run(this.reconnectdealy * 1000,
+			ReConnectedThread.getInstance().run(this.reconnectdealy * 1000,
 					this.reconnectdealy * 1000);
 
-			new CalTaxiIndexThread().run();
+			CalTaxiIndexThread.getInstance().run(0, 0);
 
-			new DoOrderHandleThread().run(
+			DoOrderHandleThread.getInstance().run(
 					OrderContants.CALLTAXI_MINWAITINGTIME * 1000, 100);
 			if (logger.isDebugEnabled()) {
 				logger.debug("loginOK(boolean) - 启动重新连接线程成功"); //$NON-NLS-1$
