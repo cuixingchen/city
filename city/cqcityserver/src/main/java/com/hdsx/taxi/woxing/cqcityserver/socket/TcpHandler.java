@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
+import com.hdsx.taxi.woxing.cqmsg.MessageID;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
 
 /**
@@ -21,9 +22,9 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
-		if (logger.isDebugEnabled()) {
-			logger.debug("channelRead(ChannelHandlerContext, Object) - start"); //$NON-NLS-1$
-		}
+//		if (logger.isDebugEnabled()) {
+//			logger.debug("channelRead(ChannelHandlerContext, Object) - start"); //$NON-NLS-1$
+//		}
 
 		try {
 			if (msg instanceof AbsMsg) {
@@ -41,16 +42,19 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 
 					}
 				}).run();
-				TcpClient.getInstance().sendAnsworMsg(m);
+				short msgid=m.getHeader().getMsgid();
+				if(msgid!=MessageID.msg0x2010){
+					TcpClient.getInstance().sendAnsworMsg(m);
+				}
 			}
 
 		} finally {
 			ReferenceCountUtil.release(msg);
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("channelRead(ChannelHandlerContext, Object) - end"); //$NON-NLS-1$
-		}
+//		if (logger.isDebugEnabled()) {
+//			logger.debug("channelRead(ChannelHandlerContext, Object) - end"); //$NON-NLS-1$
+//		}
 	}
 
 	@Override

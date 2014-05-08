@@ -32,7 +32,7 @@ public class Handler2005 implements IHandler {
 
 		if (m instanceof Msg2005) {
 			Msg2005 msg = (Msg2005) m;
-			TcpClient.getInstance().sendAnsworMsg(msg);
+//			TcpClient.getInstance().sendAnsworMsg(msg);
 
 			OrderService.getInstance().cancelByDriver(msg);
 

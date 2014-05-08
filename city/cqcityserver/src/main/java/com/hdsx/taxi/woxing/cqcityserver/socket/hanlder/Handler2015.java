@@ -31,7 +31,7 @@ public class Handler2015 implements IHandler {
 
 		if (m instanceof Msg2015) {
 			Msg2015 msg = (Msg2015) m;
-			TcpClient.getInstance().sendAnsworMsg(msg);
+//			TcpClient.getInstance().sendAnsworMsg(msg);
 			MQMsg1002 mqmsg = new MQMsg1002();
 			mqmsg.setOrderId(msg.getHeader().getOrderid());
 			mqmsg.setState(msg.getState());

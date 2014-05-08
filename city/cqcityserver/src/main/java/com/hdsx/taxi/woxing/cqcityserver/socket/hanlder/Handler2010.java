@@ -36,7 +36,7 @@ public class Handler2010 implements IHandler {
 
 		if (m instanceof Msg2010) {
 			Msg2010 msg = (Msg2010) m;
-			TcpClient.getInstance().sendAnsworMsg(msg);
+//			TcpClient.getInstance().sendAnsworMsg(msg);//位置同步不需要应答
 			List<TaxiPointInfo> l = msg.getList();
 			for (TaxiPointInfo o : l) {
 				CarInfo c = new CarInfo();

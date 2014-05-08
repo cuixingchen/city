@@ -28,20 +28,8 @@ public class Handler2001 implements IHandler {
 	public void doHandle(IMsg m) {
 		if (m instanceof Msg2001) {
 			Msg2001 msg = (Msg2001) m;
-			TcpClient.getInstance().sendAnsworMsg(msg);
 			OrderService.getInstance().onDriverAnswer(msg);
 
-//			MQMsg1001 mqmsg = new MQMsg1001();
-//
-//			mqmsg.setNumber(msg.getCarNumber());
-//			mqmsg.setPhone(msg.getPhone());
-//			mqmsg.setDriverid(msg.getCertificate());
-//			mqmsg.setTime(msg.getBcdtime());
-//			mqmsg.setLat(CoordinateCodec.Coor2Float(msg.getLng()));
-//			mqmsg.setLon(CoordinateCodec.Coor2Float(msg.getLat()));
-//			MQService.getInstance().sendMsg(mqmsg);
-			
-		
 			
 		}
 
