@@ -31,7 +31,7 @@ public class Handler2016 implements IHandler {
 
 		if (m.getClass().isInstance(Msg2016.class)) {
 			Msg2016 msg = (Msg2016) m;
-			TcpClient.getInstance().sendAnsworMsg(msg);
+//			TcpClient.getInstance().sendAnsworMsg(msg);
 			MQMsg3001 mqmsg = new MQMsg3001();
 			mqmsg.setCars(msg.getLs());
 			MQService.getInstance().sendMsg(mqmsg);

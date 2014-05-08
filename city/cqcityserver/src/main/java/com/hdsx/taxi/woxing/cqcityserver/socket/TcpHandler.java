@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
+import com.hdsx.taxi.woxing.cqmsg.MessageID;
 import com.hdsx.taxi.woxing.nettyutil.msghandler.IHandler;
 
 /**
@@ -41,7 +42,10 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 
 					}
 				}).run();
-				TcpClient.getInstance().sendAnsworMsg(m);
+				short msgid=m.getHeader().getMsgid();
+				if(msgid!=MessageID.msg0x2010){
+					TcpClient.getInstance().sendAnsworMsg(m);
+				}
 			}
 
 		} finally {

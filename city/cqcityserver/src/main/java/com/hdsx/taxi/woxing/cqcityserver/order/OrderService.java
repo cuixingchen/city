@@ -109,8 +109,6 @@ public class OrderService {
 		MQMsg1008 mqmsg = new MQMsg1008();
 		mqmsg.setOldid(orderid_old);
 		mqmsg.setNewid(orderid_new);
-//		mqmsg.setNewid(new Date().getTime());
-		mqmsg.getHead().setCustomId("cuipengfei");
 		logger.info("mq更新订单号发送开始");
 		MQService.getInstance().sendMsg(mqmsg);
 		logger.info("mq更新订单发送结束");
@@ -149,7 +147,6 @@ public class OrderService {
 		// 找不到车的情况
 		if (l.size() == 0) {
 			MQMsg1009 m = new MQMsg1009();
-			m.getHead().setCustomId("customId");
 			m.setOrderid(oi.getOrderid());
 			m.setReasoncode((byte) 0);
 			m.setDescribtion("没有找到空车");
@@ -179,7 +176,6 @@ public class OrderService {
 
 				
 				timer = new Timer();
-				logger.info("Timer开始");
 				timer.schedule(new DoResult(orderpool, oi), OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/2, OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*2);//在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
 			}
 		}else{

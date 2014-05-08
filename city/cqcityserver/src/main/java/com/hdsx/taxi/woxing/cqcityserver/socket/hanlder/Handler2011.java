@@ -33,7 +33,7 @@ public class Handler2011 implements IHandler {
 
 		if (m instanceof Msg2011) {
 			Msg2011 msg = (Msg2011) m;
-			TcpClient.getInstance().sendAnsworMsg(msg);
+//			TcpClient.getInstance().sendAnsworMsg(msg);
 			MQMsg1005 mqmsg = new MQMsg1005();
 			mqmsg.getHead().setCustomId("customid");
 			mqmsg.setOrderid(msg.getHeader().getOrderid());
