@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.Converter;
 import com.hdsx.taxi.woxing.cqmsg.FindEndFlag;
@@ -29,8 +30,8 @@ public class Msg1012 extends AbsMsg {
 	private static final Logger logger = LoggerFactory.getLogger(Msg1012.class);
 
 	private String bcdtime; // 上车时间
-	private int lng; // 经度
-	private int lat; // 纬度
+	private double lng; // 经度
+	private double lat; // 纬度
 	private String desc; // 描述信息
 
 	@Override
@@ -48,8 +49,13 @@ public class Msg1012 extends AbsMsg {
 
 		ByteBuffer b = ByteBuffer.allocate(1024); // 1 kb 缓冲区
 		b.put(Converter.str2BCD(bcdtime));
-		b.put(Converter.unSigned32LongToBigBytes(lng));
-		b.put(Converter.unSigned32LongToBigBytes(lat));
+//		b.put(Converter.unSigned32LongToBigBytes(lng));
+//		b.put(Converter.unSigned32LongToBigBytes(lat));
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec
+				.Coor2UInt(lng)));
+
+		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec
+				.Coor2UInt(lat)));
 
 		ByteBuffer bc = ByteBuffer.allocate(Converter.getBytes(desc).length);
 		bc.put(Converter.getBytes(desc));
@@ -76,10 +82,15 @@ public class Msg1012 extends AbsMsg {
 			bcdtime = Converter.bcd2Str(f.array(), offset, 7);
 			offset += 7;
 
-			lng = Converter.toUInt32(b, offset);
-			offset += 4;
+//			lng = Converter.toUInt32(b, offset);
+//			offset += 4;
+			lng=CoordinateCodec.Coor2Float(Converter
+					.bytes2Unsigned32Long(b, offset));
+			offset += 4 ;
 
-			lat = Converter.toUInt32(b, offset);
+//			lat = Converter.toUInt32(b, offset);
+			lat=CoordinateCodec.Coor2Float(Converter
+					.bytes2Unsigned32Long(b, offset));
 			offset += 4;
 
 			int stringEndIdx = FindEndFlag.getFirstStringEndFlag(b, offset);
@@ -94,19 +105,20 @@ public class Msg1012 extends AbsMsg {
 
 	}
 
-	public int getLng() {
+
+	public double getLng() {
 		return lng;
 	}
 
-	public void setLng(int lng) {
+	public void setLng(double lng) {
 		this.lng = lng;
 	}
 
-	public int getLat() {
+	public double getLat() {
 		return lat;
 	}
 
-	public void setLat(int lat) {
+	public void setLat(double lat) {
 		this.lat = lat;
 	}
 
