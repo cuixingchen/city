@@ -175,10 +175,10 @@ public class OrderService {
 				m.setCarNumbers(cars);
 				TcpClient.getInstance().send(m);
 
-				timer = new Timer();
-				timer.schedule(new DoResult(orderpool, oi),
-						OrderContants.CALLTAXI_MINWAITINGTIME * 1000l,
-						OrderContants.CALLTAXI_MINWAITINGTIME * 1000l * 1000);// 在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
+//				timer = new Timer();
+//				timer.schedule(new DoResult(orderpool, oi),
+//						OrderContants.CALLTAXI_MINWAITINGTIME * 1000l,
+//						OrderContants.CALLTAXI_MINWAITINGTIME * 1000l * 1000);// 在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
 			}
 		} else {
 			return;// 订单已经处理完
