@@ -26,9 +26,7 @@ public class Handler2005 implements IHandler {
 
 	@Override
 	public void doHandle(IMsg m) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("doHandle(IMsg) - start"); //$NON-NLS-1$
-		}
+
 
 		if (m instanceof Msg2005) {
 			Msg2005 msg = (Msg2005) m;
@@ -38,8 +36,6 @@ public class Handler2005 implements IHandler {
 
 		}
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("doHandle(IMsg) - end"); //$NON-NLS-1$
-		}
+
 	}
 }

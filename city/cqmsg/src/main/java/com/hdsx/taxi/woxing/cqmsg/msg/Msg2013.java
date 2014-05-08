@@ -26,8 +26,7 @@ public class Msg2013 extends AbsMsg {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = LoggerFactory
-			.getLogger(Msg2013.class);
+	private static final Logger logger = LoggerFactory.getLogger(Msg2013.class);
 
 	private double lng; // 经度
 	private double lat; // 纬度
@@ -67,12 +66,14 @@ public class Msg2013 extends AbsMsg {
 
 			// ByteBuffer bf = ByteBuffer.wrap(b);
 			int offset = this.head.getLength();
-			lng = CoordinateCodec.Coor2Float(Converter
-					.bytes2Unsigned32Long(b, offset));
+
+			long lng_l = Converter.bytes2Unsigned32Long(b, offset);
+			lng = CoordinateCodec.Coor2Float(Converter.bytes2Unsigned32Long(b,
+					offset));
 			offset += 4;
 
-			lat = CoordinateCodec.Coor2Float(Converter
-					.bytes2Unsigned32Long(b, offset));
+			lat = CoordinateCodec.Coor2Float(Converter.bytes2Unsigned32Long(b,
+					offset));
 			offset += 4;
 
 			bcdtime = Converter.bcd2Str(b, offset, 7);
@@ -86,8 +87,6 @@ public class Msg2013 extends AbsMsg {
 		return false;
 
 	}
-
-
 
 	public double getLng() {
 		return lng;

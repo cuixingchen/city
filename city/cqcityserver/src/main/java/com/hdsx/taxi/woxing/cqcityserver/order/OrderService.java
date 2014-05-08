@@ -58,7 +58,6 @@ public class OrderService {
 
 	private Timer timer;
 
-
 	public static OrderService getInstance() {
 		if (obj == null)
 			obj = new OrderService();
@@ -74,9 +73,9 @@ public class OrderService {
 
 	public void put(Msg1001 msg) {
 
-		 OrderObject o = new OrderObject();
-		 o.setOrder(msg.getOrder());
-		 this.orderpool.put(new Element(msg.getOrder().getOrderid(), o));
+		OrderObject o = new OrderObject();
+		o.setOrder(msg.getOrder());
+		this.orderpool.put(new Element(msg.getOrder().getOrderid(), o));
 
 	}
 
@@ -90,7 +89,7 @@ public class OrderService {
 		/**
 		 * 在历史消息中找到订单信息
 		 */
-		AbsMsg m = MsgCache.getInstance().getMsg(msg.getHeader().getSn()+";"+msg.getMsgid());
+		AbsMsg m = MsgCache.getInstance().getMsgBy3003(msg);
 		if (m == null)
 			return;
 		Msg1001 m1 = (Msg1001) m;
@@ -98,11 +97,12 @@ public class OrderService {
 		OrderInfo oi = m1.getOrder();
 		long orderid_old = oi.getOrderid();
 		long orderid_new = msg.getHeader().getOrderid();
-		logger.info("new order id"+orderid_new);
+		logger.info("new order id" + orderid_new);
 
 		oi.setOrderid(orderid_new);
 		o.setOrder(oi);
 		this.orderpool.remove(orderid_old);
+		logger.debug("订单池中加入订单：" + oi.getOrderid());
 		this.orderpool.put(new Element(oi.getOrderid(), o)); // 将订单信息存入缓存
 
 		// 发送订单号变更消息到总中心
@@ -112,7 +112,6 @@ public class OrderService {
 		logger.info("mq更新订单号发送开始");
 		MQService.getInstance().sendMsg(mqmsg);
 		logger.info("mq更新订单发送结束");
-		
 
 		// 开始执行订单流程
 		if (OrderContants.IS_SELF) {
@@ -151,16 +150,18 @@ public class OrderService {
 			m.setReasoncode((byte) 0);
 			m.setDescribtion("没有找到空车");
 			MQService.getInstance().sendMsg(m);
+			logger.debug("找不到车，移除订单" + oi.getOrderid());
 			orderpool.remove(oi.getOrderid());
 			return;
 		}
 		Element e = orderpool.get(oi.getOrderid());
-		if(e!=null){
-			OrderObject o=(OrderObject) e.getObjectValue();
-			if(o.getState()==1){//订单已经取消
+		if (e != null) {
+			OrderObject o = (OrderObject) e.getObjectValue();
+			if (o.getState() == 1) {// 订单已经取消
+				logger.debug("订单已经取消，移除订单" + oi.getOrderid());
 				orderpool.remove(oi.getOrderid());
 				return;
-			}else{
+			} else {
 				// 向目标车辆发送抢单信息
 				Msg1101 m = new Msg1101();
 				m.setOrder(oi);
@@ -168,23 +169,24 @@ public class OrderService {
 				m.setCount((short) l.size());
 				List<String> cars = new ArrayList<String>();
 				for (CarInfo c : l) {
-//					cars.add(c.getLisencenumber());
+					// cars.add(c.getLisencenumber());
 					cars.add(c.getId());
 				}
 				m.setCarNumbers(cars);
 				TcpClient.getInstance().send(m);
 
-				
 				timer = new Timer();
-				timer.schedule(new DoResult(orderpool, oi), OrderContants.CALLTAXI_MINWAITINGTIME * 1000l/2, OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*2);//在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
+				timer.schedule(new DoResult(orderpool, oi),
+						OrderContants.CALLTAXI_MINWAITINGTIME * 1000l,
+						OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*1000);// 在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
 			}
-		}else{
-			return;//订单已经处理完
+		} else {
+			return;// 订单已经处理完
 		}
-		
+
 	}
 
-	class DoResult extends  java.util.TimerTask{
+	class DoResult extends java.util.TimerTask {
 
 		private Ehcache orderpool;
 		private OrderInfo oi;
@@ -202,7 +204,7 @@ public class OrderService {
 			if (e == null) // 表示已经被处理
 				return;
 			OrderObject o = (OrderObject) e.getObjectValue();
-			
+
 			/**
 			 * 无车应答时
 			 */
@@ -213,6 +215,7 @@ public class OrderService {
 				mq.setReasoncode((byte) 1);
 				mq.setDescribtion("没有司机抢单");
 				MQService.getInstance().sendMsg(mq);
+				logger.debug("没有司机抢单，移除订单" + oi.getOrderid());
 				orderpool.remove(oi.getOrderid());
 				return;
 			}
@@ -220,11 +223,9 @@ public class OrderService {
 			doSucess(o);
 			timer.cancel();
 		}
-		
+
 	}
-	
-	
-	
+
 	/**
 	 * 处理成功的订单对象，包括想司机发送消息和通知乘客
 	 * 
@@ -234,6 +235,7 @@ public class OrderService {
 
 		if (o.getState() != 0) // 订单已经被乘客取消的情况
 		{
+			logger.debug("订单已经被乘客取消的情况，移除订单" + o.getOrder().getOrderid());
 			this.orderpool.remove(o.getOrder().getOrderid());
 			return;
 		}
@@ -278,6 +280,7 @@ public class OrderService {
 			msg_fa.setErrorDesc("该订单已经被抢");
 			TcpClient.getInstance().send(m);
 		}
+		logger.debug("订单流程结束，移除订单" + o.getOrder().getOrderid());
 		this.orderpool.remove(o.getOrder().getOrderid());
 
 	}
@@ -292,9 +295,8 @@ public class OrderService {
 	List<CarInfo> getTaxi(OrderInfo oi) {
 		int rad = OrderContants.CALLTAXI_RAD_MIN;
 
-		List<CarInfo> l = LocationService.getInstance()
-				.getEmptycarByDistance(oi.getUseLng(), oi.getUseLat(),
-						OrderContants.CALLTAXI_RAD_MIN);
+		List<CarInfo> l = LocationService.getInstance().getEmptycarByDistance(
+				oi.getUseLng(), oi.getUseLat(), OrderContants.CALLTAXI_RAD_MIN);
 		/**
 		 * 循环找车，直到找到车
 		 */
@@ -339,10 +341,10 @@ public class OrderService {
 			m.setErrorDesc("该订单已经被抢");
 			TcpClient.getInstance().send(m);
 			return;
-		}else{
+		} else {
 			OrderObject o = (OrderObject) e.getObjectValue();
 			o.getDrivers().add(msg);
-			if (o.getDrivers().size() > OrderContants.CALLTAXI_ORDER_MAXCARS){
+			if (o.getDrivers().size() > OrderContants.CALLTAXI_ORDER_MAXCARS) {
 				Msg1004 m = new Msg1004();
 				m.getHeader().setOrderid(orderid);
 				m.setCarNumber(msg.getCarNumber());
@@ -351,11 +353,11 @@ public class OrderService {
 				TcpClient.getInstance().send(m);
 				return;
 			}
-			
-			this.orderpool.replace(e);
-			
-//			this.orderpool.remove(orderid);
-//			this.orderpool.put(new Element(orderid, o));
+
+			this.orderpool.put(e);
+
+			// this.orderpool.remove(orderid);
+			// this.orderpool.put(new Element(orderid, o));
 
 			if (o.getDrivers().size() >= OrderContants.CALLTAXI_ORDER_MAXCARS) // 当抢单司机比较多时直接处理
 			{
@@ -380,7 +382,7 @@ public class OrderService {
 
 			OrderObject o = (OrderObject) e.getObjectValue();
 			o.setState((byte) 1);
-			this.orderpool.replace(e);
+			this.orderpool.put(e);
 		} else { // 表示订单处理完成，提交到电招中心取消订单
 
 			Msg1002 m = new Msg1002();
@@ -396,14 +398,9 @@ public class OrderService {
 			TcpClient.getInstance().send(m);
 
 		}
-		
-		//通知中心订单已经取消
-		MQMsg1003 mqmsg = new MQMsg1003(msg.getHead().getCustomId());
-		mqmsg.setOrderId(msg.getOrderId());
-		mqmsg.setCancle( (byte) 0);//0:取消成,1:取消失败
-		mqmsg.setExplain("取消");
-		MQService.getInstance().sendMsg(mqmsg);
-		
+
+
+
 	}
 
 	/**
@@ -438,7 +435,7 @@ public class OrderService {
 			 * 表示订单已经处理完成
 			 */
 
-			MQMsg1004 mqmsg = new MQMsg1004("customid");
+			MQMsg1004 mqmsg = new MQMsg1004();
 
 			mqmsg.setCarNumber(msg.getCarNumber());
 			mqmsg.setDriverid(msg.getCertificate());
@@ -448,22 +445,23 @@ public class OrderService {
 			mqmsg.setOrderid(msg.getHeader().getOrderid());
 			MQService.getInstance().sendMsg(mqmsg);
 		}
-		//回应电召平台，司机取消订单成功
+		// 回应电召平台，司机取消订单成功
 		Msg1007 m = new Msg1007();
 		m.getHeader().setOrderid(oid);
-		m.setErrorNumber((short) 0);//错误号 0表示成功， 1表示失败
+		m.setErrorNumber((short) 0);// 错误号 0表示成功， 1表示失败
 		m.setErrorDesc("成功");
 		TcpClient.getInstance().send(m);
-		
+
 	}
-	
+
 	/**
 	 * 查询订单状态
+	 * 
 	 * @param msg
 	 */
-	public void getorderState(MQMsg0002 mqmsg){
-		long orderId=mqmsg.getOrderId();
-		Msg1015 msg=new Msg1015();
+	public void getorderState(MQMsg0002 mqmsg) {
+		long orderId = mqmsg.getOrderId();
+		Msg1015 msg = new Msg1015();
 		msg.getHeader().setOrderid(orderId);
 		TcpClient.getInstance().send(msg);
 	}
