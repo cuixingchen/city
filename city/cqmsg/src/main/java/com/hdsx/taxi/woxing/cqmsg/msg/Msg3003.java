@@ -94,6 +94,14 @@ public class Msg3003 extends AbsMsg{
 		return msgid;
 	}
 
+
+
+	@Override
+	public String toString() {
+		return "Msg3003 [msgid=" + msgid + ", error=" + error + ", errorDesc="
+				+ errorDesc + ", head=" + head + "]";
+	}
+
 	public void setMsgid(short msgid) {
 		this.msgid = msgid;
 	}

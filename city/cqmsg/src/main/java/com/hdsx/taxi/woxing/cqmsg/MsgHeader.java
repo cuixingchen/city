@@ -22,8 +22,9 @@ import java.nio.ByteBuffer;
 public class MsgHeader implements Serializable {
 	@Override
 	public String toString() {
-		return "MsgHeader [msgid=" + msgid + ", sn=" + sn + ", flag=" + flag
-				+ ", orderid=" + orderid + ", bodylen=" + bodylen + "]";
+		return "MsgHeader [msgid=" + Integer.toHexString(msgid) + ", sn=" + sn
+				+ ", flag=" + flag + ", orderid=" + orderid + ", bodylen="
+				+ bodylen + "]";
 	}
 
 	/**
@@ -150,7 +151,5 @@ public class MsgHeader implements Serializable {
 	public void setBodylen(short bodylen) {
 		this.bodylen = bodylen;
 	}
-
-
 
 }

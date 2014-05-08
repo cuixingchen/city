@@ -1,7 +1,9 @@
 package com.hdsx.taxi.woxing.cqcityserver;
 
+import java.io.IOException;
 import java.net.URL;
 
+import javax.jms.JMSException;
 import javax.jms.MessageListener;
 
 import org.slf4j.Logger;
@@ -9,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.cqcityserver.mq.CQMQMessageListener;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
+import com.hdsx.taxi.woxing.mqutil.MQService;
 
 /**
  * 运行程序的住
@@ -32,22 +35,19 @@ public class Launcher {
 
 		URL r = TcpClient.class.getResource("/tcp.properties");
 		logger.info("main(String[]) - URL r={}", r); //$NON-NLS-1$
+	MessageListener listener = new CQMQMessageListener();
 
-	
+		try {
 
-		MessageListener listener = new CQMQMessageListener();
-
-//		try {
-//
-//			// 连接TcpClient
+			// 连接TcpClient
 			TcpClient.getInstance().start();
-//			// 连接ActiveMQ
-//			MQService.getInstance().initcity(listener);
-//
-//		} catch (JMSException | IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+			// 连接ActiveMQ
+			MQService.getInstance().initcity(listener);
+
+		} catch (JMSException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 

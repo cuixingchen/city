@@ -24,7 +24,4 @@
 		timeToIdleSeconds="1200" timeToLiveSeconds="1200" diskSpoolBufferSizeMB="30"
 		maxElementsOnDisk="10000000" diskExpiryThreadIntervalSeconds="120"
 		memoryStoreEvictionPolicy="FIFO"></cache>	
-
-
-
 </ehcache>
