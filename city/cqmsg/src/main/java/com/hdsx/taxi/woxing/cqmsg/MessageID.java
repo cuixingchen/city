@@ -19,6 +19,7 @@ public class MessageID {
 	public static final int msg0x0002 = 0x0002;
 	public static final int msg0x0003 = 0x0003;
 	public static final int msg0x3003 = 0x3003;
+	public static final int msg0x0007 = 0x0007;
 	public static final int msg0x1001 = 0x1001;
 	public static final int msg0x1002 = 0x1002;
 	public static final int msg0x1003 = 0x1003;
