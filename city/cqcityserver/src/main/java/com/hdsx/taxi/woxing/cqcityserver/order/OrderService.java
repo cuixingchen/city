@@ -178,7 +178,7 @@ public class OrderService {
 				timer = new Timer();
 				timer.schedule(new DoResult(orderpool, oi),
 						OrderContants.CALLTAXI_MINWAITINGTIME * 1000l,
-						OrderContants.CALLTAXI_MINWAITINGTIME * 1000l*1000);// 在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
+						OrderContants.CALLTAXI_MINWAITINGTIME * 1000l * 1000);// 在1秒后执行此任务,每次间隔2秒,如果传递一个Data参数,就可以在某个固定的时间执行这个任务.
 			}
 		} else {
 			return;// 订单已经处理完
@@ -399,8 +399,6 @@ public class OrderService {
 
 		}
 
-
-
 	}
 
 	/**
@@ -467,15 +465,45 @@ public class OrderService {
 	}
 
 	/**
+	 * 处理是否为成功的订单
+	 */
+	public void doOrderHandle() {
+		List<String> keys = this.orderpool.getKeys();
+		for (String k : keys) {
+			Element e = this.orderpool.get(k);
+			OrderObject oo = (OrderObject) e.getObjectValue();
+
+			if (System.currentTimeMillis() - oo.getSendedtime() > OrderContants.CALLTAXI_MINWAITINGTIME * 1000l) {
+				if (oo.getDrivers().size() == 0) {
+					MQMsg1009 mq = new MQMsg1009();
+					OrderInfo oi = oo.getOrder();
+					mq.setOrderid(oi.getOrderid());
+					mq.setReasoncode((byte) 1);
+					mq.setDescribtion("没有司机抢单");
+					MQService.getInstance().sendMsg(mq);
+					logger.debug("没有司机抢单，移除订单" + oi.getOrderid());
+					orderpool.remove(oi.getOrderid());
+				} else {
+					doSucess(oo);
+				}
+			}
+		}
+
+	}
+
+	/**
 	 * 订单对象实体，加入了司机抢单存储
 	 * 
 	 * @author Steven
 	 * 
 	 */
 	class OrderObject {
+
 		OrderInfo order;
 		List<Msg2001> drivers = new ArrayList<>();
 		byte state = 0; // 状态 0为正常，1为被乘客取消，2为被驾驶员取消
+
+		long sendedtime = System.currentTimeMillis(); // 发送时间
 
 		public byte getState() {
 			return state;
@@ -499,6 +527,10 @@ public class OrderService {
 
 		public void setDrivers(List<Msg2001> drivers) {
 			this.drivers = drivers;
+		}
+
+		public long getSendedtime() {
+			return sendedtime;
 		}
 
 	}
