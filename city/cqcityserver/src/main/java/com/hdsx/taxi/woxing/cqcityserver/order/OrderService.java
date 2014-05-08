@@ -254,18 +254,18 @@ public class OrderService {
 		// 通知乘客
 		MQMsg1001 msg_p = new MQMsg1001();
 
-		msg_p.getHead().setCustomId("customid");
+//		msg_p.getHead().setCustomId("customid");
 		msg_p.setOrderId(o.getOrder().getOrderid());
-		msg_p.setColor("红色");
-		msg_p.setCommpany("公司A");
+//		msg_p.setColor("红色");
+//		msg_p.setCommpany("公司A");
 		msg_p.setDriverid(m.getCertificate());
 		msg_p.setLon(m.getLng());
 		msg_p.setLat(m.getLat());
-		msg_p.setName("司机id");
+//		msg_p.setName("司机id");
 		msg_p.setNumber(m.getCarNumber());
 		msg_p.setPhone(m.getPhone());
 		msg_p.setTime(m.getBcdtime());
-		msg_p.setType("车型");
+//		msg_p.setType("车型");
 		MQService.getInstance().sendMsg(msg_p);
 		// msg_p.setName(m.get);
 
@@ -468,8 +468,8 @@ public class OrderService {
 	 * 处理是否为成功的订单
 	 */
 	public void doOrderHandle() {
-		List<String> keys = this.orderpool.getKeys();
-		for (String k : keys) {
+		List<Long> keys = this.orderpool.getKeys();
+		for (long k : keys) {
 			Element e = this.orderpool.get(k);
 			OrderObject oo = (OrderObject) e.getObjectValue();
 
