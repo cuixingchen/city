@@ -32,6 +32,9 @@ public class MQHandlerFactory {
 		case 0x1007:
 			h=new MQMsgHandler1007();
 			break;
+		case 0x1010:
+			h=new MQMsgHandler1010();
+			break;
 		case 0x1011:
 			h=new MQMsgHandler1011();
 			break;
