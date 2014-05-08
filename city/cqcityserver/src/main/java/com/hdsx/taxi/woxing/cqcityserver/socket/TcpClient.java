@@ -20,7 +20,9 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.cqcityserver.order.OrderContants;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.CalTaxiIndexThread;
+import com.hdsx.taxi.woxing.cqcityserver.socket.thread.DoOrderHandleThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.HeartBeatThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReConnectedThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReSendMsgThread;
@@ -37,7 +39,7 @@ import com.hdsx.taxi.woxing.nettyutil.msg.IMsg;
  * 
  */
 public class TcpClient extends Thread {
-	
+
 	static TcpClient obj;
 
 	public static TcpClient getInstance() {
@@ -49,8 +51,9 @@ public class TcpClient extends Thread {
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(TcpClient.class);
-	
+	private static final Logger logger = LoggerFactory
+			.getLogger(TcpClient.class);
+
 	Channel ch;
 	String hostname; // 服务器地址
 	int hostport; // 服务器端口
@@ -86,7 +89,7 @@ public class TcpClient extends Thread {
 			logger.debug("reconnect() - end"); //$NON-NLS-1$
 		}
 	}
-	
+
 	@Override
 	public void run() {
 		if (logger.isDebugEnabled()) {
@@ -119,14 +122,17 @@ public class TcpClient extends Thread {
 			this.loglevel = LogLevel.valueOf(loglevelname);
 
 			this.thirdflag = Byte.parseByte(p.getProperty("tcp.thirdpartflag"));
-			
+
 			AbsMsg.THIRD_PART_FLAG = this.thirdflag; // 第三方接入平台标识
 			this.vss = p.getProperty("tcp.vss"); // 第三方VSS
 			Msg0001.VSS = this.vss;
 
-			this.heartbeatdelay = Integer.parseInt(p.getProperty("tcp.heartbeatdelay"));
-			this.reconnectdealy = Integer.parseInt(p.getProperty("tcp.reconnectdealy"));
-			this.resendmsgdealy = Integer.parseInt(p.getProperty("tcp.resendmsgdealy"));
+			this.heartbeatdelay = Integer.parseInt(p
+					.getProperty("tcp.heartbeatdelay"));
+			this.reconnectdealy = Integer.parseInt(p
+					.getProperty("tcp.reconnectdealy"));
+			this.resendmsgdealy = Integer.parseInt(p
+					.getProperty("tcp.resendmsgdealy"));
 
 			Bootstrap b = new Bootstrap();
 			b.group(group).channel(NioSocketChannel.class)
@@ -134,40 +140,49 @@ public class TcpClient extends Thread {
 						@Override
 						protected void initChannel(SocketChannel ch)
 								throws Exception {
-							ch.pipeline().addLast(new CQTcpCodec(),new LoggingHandler(loglevel),new TcpHandler());
+							ch.pipeline().addLast(new CQTcpCodec(),
+									new LoggingHandler(loglevel),
+									new TcpHandler());
 						}
 					});
 
-			logger.info("init(String, int, String, String) - ready to connect"+hostname+":"+hostport); //$NON-NLS-1$
+			logger.info("init(String, int, String, String) - ready to connect" + hostname + ":" + hostport); //$NON-NLS-1$
 
-			cf=b.connect(hostname, hostport).sync();
-//			cf.channel().closeFuture().sync();
+			cf = b.connect(hostname, hostport).sync();
+			// cf.channel().closeFuture().sync();
 
 		} catch (InterruptedException | IOException e) {
 			logger.error("init(String, int, String, String)", e); //$NON-NLS-1$
 		} finally {
-//			group.shutdownGracefully();
+			// group.shutdownGracefully();
 		}
 	}
+
 	/**
 	 * 设置登陆状态
 	 * 
 	 * @param b
 	 */
 	public void loginOK(boolean b) {
-		
+
 		this.isLogined = b;
 
 		if (b) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("loginOK(boolean) - 启动线程"); //$NON-NLS-1$
 			}
-			new ReSendMsgThread().run(this.resendmsgdealy*1000, this.resendmsgdealy * 1000);// 启动发送缓存消息线程
+			new ReSendMsgThread().run(this.resendmsgdealy * 1000,
+					this.resendmsgdealy * 1000);// 启动发送缓存消息线程
 
-			new HeartBeatThread().run(this.heartbeatdelay * 1000, this.heartbeatdelay * 1000);
-			new ReConnectedThread().run(this.reconnectdealy * 1000,this.reconnectdealy * 1000);
-			
+			new HeartBeatThread().run(this.heartbeatdelay * 1000,
+					this.heartbeatdelay * 1000);
+			new ReConnectedThread().run(this.reconnectdealy * 1000,
+					this.reconnectdealy * 1000);
+
 			new CalTaxiIndexThread().run();
+
+			new DoOrderHandleThread().run(
+					OrderContants.CALLTAXI_MINWAITINGTIME * 1000, 100);
 			if (logger.isDebugEnabled()) {
 				logger.debug("loginOK(boolean) - 启动重新连接线程成功"); //$NON-NLS-1$
 			}
@@ -182,7 +197,7 @@ public class TcpClient extends Thread {
 	 */
 	public void send(AbsMsg m) {
 		// try {
-		logger.debug("开始发送tcp消息:"+m.toString());
+		logger.debug("开始发送tcp消息:" + m.toString());
 		if (this.isLogined) {
 			if (chtx != null && chtx.channel().isOpen()) {
 				MsgCache.getInstance().put(m);
@@ -212,8 +227,8 @@ public class TcpClient extends Thread {
 
 	/**
 	 * 
-	 * login:(发送登陆消息). 
-	 *
+	 * login:(发送登陆消息).
+	 * 
 	 * @author sid
 	 */
 	public void login() {
@@ -234,7 +249,7 @@ public class TcpClient extends Thread {
 			}
 
 		} catch (Exception e) {
-			logger.info("login() - Exception"+e.getStackTrace()); //$NON-NLS-1$
+			logger.info("login() - Exception" + e.getStackTrace()); //$NON-NLS-1$
 			e.printStackTrace();
 		}
 
@@ -258,6 +273,7 @@ public class TcpClient extends Thread {
 	public void setCf(ChannelFuture cf) {
 		this.cf = cf;
 	}
+
 	public int getConnstate() {
 		return connstate;
 	}
@@ -277,7 +293,7 @@ public class TcpClient extends Thread {
 	 */
 	public void sendAnsworMsg(AbsMsg msg) {
 		short msgid = msg.getHeader().getMsgid();
-		if (msgid==MessageID.msg0x3003) {
+		if (msgid == MessageID.msg0x3003) {
 			return;
 		}
 		Msg0003 mout = new Msg0003();
