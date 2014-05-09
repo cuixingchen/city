@@ -60,9 +60,9 @@ public class Handler3003 implements IHandler {
 					MQService.getInstance().sendMsg(mqmsg);
 					
 				}
-				else if(msg.getMsgid()==MessageID.msg0x0007)  //乘客上车返回结果					
+				else if(msg.getMsgid()==MessageID.msg0x1011)  //乘客上车返回结果					
 				{
-					// 通知中心订单已经取消
+					// 乘客上车返回结果	
 					MQMsg0007 mqmsg = new MQMsg0007();
 					mqmsg.setOrderId(msg.getHeader().getOrderid());
 					mqmsg.setCancle(msg.getError());// 0:取消成,1:取消失败

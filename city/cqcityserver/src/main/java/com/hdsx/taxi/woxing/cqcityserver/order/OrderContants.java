@@ -34,7 +34,7 @@ public class OrderContants {
 
 	static Properties pro;
 	static Properties getInstance(){
-		if(pro!=null){
+		if(pro==null){
 			pro = new Properties();
 			try {
 				pro.load(OrderContants.class.getResourceAsStream("/calltaxi.properties"));

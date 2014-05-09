@@ -211,7 +211,7 @@ public class OrderService {
 			if (o.getDrivers().size() == 0) {
 				MQMsg1009 mq = new MQMsg1009();
 				mq.setOrderid(oi.getOrderid());
-				mq.getHead().setCustomId("customId");
+//				mq.getHead().setCustomId("customId");
 				mq.setReasoncode((byte) 1);
 				mq.setDescribtion("没有司机抢单");
 				MQService.getInstance().sendMsg(mq);

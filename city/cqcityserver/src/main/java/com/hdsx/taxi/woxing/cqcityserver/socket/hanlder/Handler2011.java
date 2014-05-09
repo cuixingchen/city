@@ -35,7 +35,7 @@ public class Handler2011 implements IHandler {
 			Msg2011 msg = (Msg2011) m;
 //			TcpClient.getInstance().sendAnsworMsg(msg);
 			MQMsg1005 mqmsg = new MQMsg1005();
-			mqmsg.getHead().setCustomId("customid");
+//			mqmsg.getHead().setCustomId("customid");
 			mqmsg.setOrderid(msg.getHeader().getOrderid());
 			mqmsg.setCarLicensenumber(msg.getCarNumber());
 			mqmsg.setLat(msg.getLat());
