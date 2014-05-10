@@ -21,7 +21,8 @@ public class OrderContants {
 	public static int CALLTAXI_RAD_MAX = Integer.parseInt(getInstance().getProperty("calltaxi.rad.max"));
 	public static int CALLTAXI_RAD_STEP = Integer.parseInt(getInstance().getProperty("calltaxi.rad.step"));
 	public static int CALLTAXI_ORDER_MAXCARS = Integer.parseInt(getInstance().getProperty("calltaxi.order.maxcars"));
-	public static int CAL_TAXI_INDEX_DELAY = Integer.parseInt(getInstance().getProperty("CAL_TAXI_INDEX_DELAY"));
+//	public static int CAL_TAXI_INDEX_DELAY = Integer.parseInt(getInstance().getProperty("CAL_TAXI_INDEX_DELAY"));
+	public static int CALLTAXI_ORDER_DRIVERS = Integer.parseInt(getInstance().getProperty("calltaxi.order.drivers"));
 	
 //	public static boolean IS_SELF = true;
 //	public static int CALLTAXI_NOTSELF_RAD = 5000;

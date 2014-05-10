@@ -473,18 +473,23 @@ public class OrderService {
 			Element e = this.orderpool.get(k);
 			OrderObject oo = (OrderObject) e.getObjectValue();
 
-			if (System.currentTimeMillis() - oo.getSendedtime() > OrderContants.CALLTAXI_MINWAITINGTIME * 1000l) {
-				if (oo.getDrivers().size() == 0) {
-					MQMsg1009 mq = new MQMsg1009();
-					OrderInfo oi = oo.getOrder();
-					mq.setOrderid(oi.getOrderid());
-					mq.setReasoncode((byte) 1);
-					mq.setDescribtion("没有司机抢单");
-					MQService.getInstance().sendMsg(mq);
-					logger.debug("没有司机抢单，移除订单" + oi.getOrderid());
-					orderpool.remove(oi.getOrderid());
-				} else {
-					doSucess(oo);
+			if (oo.getDrivers().size() >= OrderContants.CALLTAXI_ORDER_DRIVERS) {
+				doSucess(oo);
+			} else {
+				if (System.currentTimeMillis() - oo.getSendedtime() > OrderContants.CALLTAXI_MINWAITINGTIME * 1000l) {
+					if(oo.getDrivers().size() ==0){
+						MQMsg1009 mq = new MQMsg1009();
+						OrderInfo oi = oo.getOrder();
+						mq.setOrderid(oi.getOrderid());
+						mq.setReasoncode((byte) 1);
+						mq.setDescribtion("没有司机抢单");
+						MQService.getInstance().sendMsg(mq);
+						logger.debug("没有司机抢单，移除订单" + oi.getOrderid());
+						orderpool.remove(oi.getOrderid());
+					}else{
+						doSucess(oo);
+					}
+					
 				}
 			}
 		}
