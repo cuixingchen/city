@@ -15,13 +15,14 @@ import java.util.Properties;
 public class OrderContants {
 	
 	public static boolean IS_SELF ="true".equals(getInstance().getProperty("calltaxi.self"));
+	public static int CALLTAXINOW =Integer.parseInt(getInstance().getProperty("calltaxi.now"));
+	public static int CALLTAXIRESERVAT =Integer.parseInt(getInstance().getProperty("calltaxi.reservat"));
 	public static int CALLTAXI_NOTSELF_RAD = Integer.parseInt(getInstance().getProperty("calltaxi.notself.rad"));
 	public static int CALLTAXI_MINWAITINGTIME = Integer.parseInt(getInstance().getProperty("calltaxi.minwaitingtime"));
 	public static int CALLTAXI_RAD_MIN = Integer.parseInt(getInstance().getProperty("calltaxi.rad.min"));
 	public static int CALLTAXI_RAD_MAX = Integer.parseInt(getInstance().getProperty("calltaxi.rad.max"));
 	public static int CALLTAXI_RAD_STEP = Integer.parseInt(getInstance().getProperty("calltaxi.rad.step"));
 	public static int CALLTAXI_ORDER_MAXCARS = Integer.parseInt(getInstance().getProperty("calltaxi.order.maxcars"));
-//	public static int CAL_TAXI_INDEX_DELAY = Integer.parseInt(getInstance().getProperty("CAL_TAXI_INDEX_DELAY"));
 	public static int CALLTAXI_ORDER_DRIVERS = Integer.parseInt(getInstance().getProperty("calltaxi.order.drivers"));
 	
 //	public static boolean IS_SELF = true;
