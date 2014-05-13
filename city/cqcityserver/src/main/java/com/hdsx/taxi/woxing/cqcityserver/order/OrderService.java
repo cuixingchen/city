@@ -96,35 +96,48 @@ public class OrderService {
 		OrderObject o = new OrderObject();
 		OrderInfo oi = m1.getOrder();
 		long orderid_old = oi.getOrderid();
-		long orderid_new = msg.getHeader().getOrderid();
-		logger.info("new order id" + orderid_new);
-
-		oi.setOrderid(orderid_new);
-		o.setOrder(oi);
-		this.orderpool.remove(orderid_old);
-		logger.debug("订单池中加入订单：" + oi.getOrderid());
-		this.orderpool.put(new Element(oi.getOrderid(), o)); // 将订单信息存入缓存
-
-		// 发送订单号变更消息到总中心
-		MQMsg1008 mqmsg = new MQMsg1008();
-		mqmsg.setOldid(orderid_old);
-		mqmsg.setNewid(orderid_new);
-		logger.info("mq更新订单号发送开始");
-		MQService.getInstance().sendMsg(mqmsg);
-		logger.info("mq更新订单发送结束");
-
-		//0：即时，1：预约
-		if(oi.getOrderType()==OrderContants.CALLTAXINOW){
-			// 开始执行订单流程
-			if (OrderContants.IS_SELF) {
-				doWithOrder(oi);
-			} else {
-				doWithorder2(oi);
-			}
-		}else if(oi.getOrderType()==OrderContants.CALLTAXIRESERVAT){
-			doWithorder2(oi);
+		if(msg.getError() != 0){
+			//无车、新增订单失败
+			MQMsg1009 mq = new MQMsg1009();
+			mq.setOrderid(oi.getOrderid());
+//			mq.getHead().setCustomId("customId");
+			mq.setReasoncode((byte) 0);
+			mq.setDescribtion(msg.getErrorDesc());
+			MQService.getInstance().sendMsg(mq);
+			logger.debug(msg.getErrorDesc()+"，移除订单" + oi.getOrderid());
+			orderpool.remove(oi.getOrderid());
 		}else{
-			logger.error("updateOrderId():订单类型不对");
+			//开始更新订单号
+			long orderid_new = msg.getHeader().getOrderid();
+			logger.info("new order id" + orderid_new);
+
+			oi.setOrderid(orderid_new);
+			o.setOrder(oi);
+			this.orderpool.remove(orderid_old);
+			logger.debug("订单池中加入订单：" + oi.getOrderid());
+			this.orderpool.put(new Element(oi.getOrderid(), o)); // 将订单信息存入缓存
+
+			// 发送订单号变更消息到总中心
+			MQMsg1008 mqmsg = new MQMsg1008();
+			mqmsg.setOldid(orderid_old);
+			mqmsg.setNewid(orderid_new);
+			logger.info("mq更新订单号发送开始");
+			MQService.getInstance().sendMsg(mqmsg);
+			logger.info("mq更新订单发送结束");
+
+			//0：即时，1：预约
+			if(oi.getOrderType()==OrderContants.CALLTAXINOW){
+				// 开始执行订单流程
+				if (OrderContants.IS_SELF) {
+					doWithOrder(oi);
+				} else {
+					doWithorder2(oi);
+				}
+			}else if(oi.getOrderType()==OrderContants.CALLTAXIRESERVAT){
+				doWithorder2(oi);
+			}else{
+				logger.error("updateOrderId():订单类型不对");
+			}
 		}
 		
 	}

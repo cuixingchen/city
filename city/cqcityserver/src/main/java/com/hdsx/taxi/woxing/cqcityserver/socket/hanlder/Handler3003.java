@@ -33,11 +33,11 @@ public class Handler3003 implements IHandler {
 			// String key = msg.getHeader().getSn()+";"+msg.getMsgid();
 
 			// 收到失败的消息应答时
-			if (msg.getError() != 0) {
-				logger.error("收到应答错误消息Msg3003：" + msg.getErrorDesc()
-						+ " msgid:0x" +Integer.toHexString(msg.getMsgid()));
-				return;
-			}
+//			if (msg.getError() != 0) {
+//				logger.error("收到应答错误消息Msg3003：" + msg.getErrorDesc()
+//						+ " msgid:0x" +Integer.toHexString(msg.getMsgid()));
+//				return;
+//			}
 			if (logger.isDebugEnabled()) {
 				logger.debug("【0x3003】解析开始 - msgId:0x" + Integer.toHexString(msg.getMsgid())); //$NON-NLS-1$
 			}
@@ -47,7 +47,7 @@ public class Handler3003 implements IHandler {
 				TcpClient.getInstance().loginOK(true);
 			} else if (TcpClient.getInstance().isLogined()) {
 				if (msg.getMsgid() == MessageID.msg0x1001) { // 发送订单的回复需要获取返回的订单号
-					logger.debug("收到通用应答：更新订单开始");
+					logger.debug("1001发送订单收到通用应答：更新订单开始");
 					OrderService.getInstance().updateOrderId(msg);
 				}
 				else if(msg.getMsgid()==MessageID.msg0x1002)  //乘客取消订单返回结果					
