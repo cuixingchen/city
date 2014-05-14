@@ -387,6 +387,7 @@ public class OrderService {
 					doSucess(o);
 				}
 			}else if(o.getOrder().getOrderType()==OrderContants.CALLTAXIRESERVAT){
+				o.getDrivers().add(msg);
 				doSucess(o);
 			}else{
 				logger.error("onDriverAnswer():订单类型不对");
