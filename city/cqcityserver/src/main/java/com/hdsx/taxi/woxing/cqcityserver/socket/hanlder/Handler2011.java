@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
+import com.hdsx.taxi.woxing.cqcityserver.order.OrderService;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2011;
 import com.hdsx.taxi.woxing.mqutil.MQService;
@@ -34,14 +35,7 @@ public class Handler2011 implements IHandler {
 		if (m instanceof Msg2011) {
 			Msg2011 msg = (Msg2011) m;
 //			TcpClient.getInstance().sendAnsworMsg(msg);
-			MQMsg1005 mqmsg = new MQMsg1005();
-//			mqmsg.getHead().setCustomId("customid");
-			mqmsg.setOrderid(msg.getHeader().getOrderid());
-			mqmsg.setCarLicensenumber(msg.getCarNumber());
-			mqmsg.setLat(msg.getLat());
-			mqmsg.setLon(msg.getLng());
-			mqmsg.setTime(msg.getBcdtime());
-			MQService.getInstance().sendMsg(mqmsg);
+			OrderService.getInstance().startReseOrder(msg);
 		}
 
 		if (logger.isDebugEnabled()) {

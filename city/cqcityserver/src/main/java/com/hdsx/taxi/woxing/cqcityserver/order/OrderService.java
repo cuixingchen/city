@@ -27,18 +27,24 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg1015;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1101;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2005;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg2010;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg2011;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg2012;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg3003;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.OrderInfo;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.PassengerInfo;
+import com.hdsx.taxi.woxing.cqmsg.msg.pojo.TaxiPointInfo;
 import com.hdsx.taxi.woxing.location.LocationService;
 import com.hdsx.taxi.woxing.mqutil.MQService;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0002;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1001;
-import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1004;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1005;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1006;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1008;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1009;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1012;
 
 /**
  * 订单服务
@@ -55,7 +61,7 @@ public class OrderService {
 
 	static OrderService obj;
 	Ehcache orderpool; // 订单缓存
-
+	Ehcache ordercarpool; // 订单缓存
 	private Timer timer;
 
 	public static OrderService getInstance() {
@@ -68,6 +74,8 @@ public class OrderService {
 
 		this.orderpool = CacheManagerUtil.getInstance().getCm()
 				.getEhcache("orderpoolcache");
+		this.ordercarpool = CacheManagerUtil.getInstance().getCm()
+				.getEhcache("ordercarpoolcache");
 
 	}
 
@@ -271,6 +279,7 @@ public class OrderService {
 		msg_sucess.getHeader().setOrderid(o.getOrder().getOrderid());
 		msg_sucess.setCarNumber(m.getCarNumber());
 		TcpClient.getInstance().send(msg_sucess);
+		this.ordercarpool.put(new Element(m.getCarNumber(), o));
 
 		// 通知乘客
 		MQMsg1001 msg_p = new MQMsg1001();
@@ -343,7 +352,52 @@ public class OrderService {
 
 		return l.subList(0, OrderContants.CALLTAXI_ORDER_MAXCARS - 1);
 	}
+	
+	/**
+	 * 向乘客更新司机位置信息
+	 * @param msg
+	 */
+	public void updateOrderedCar(Msg2010 msg)
+	{
+		List<TaxiPointInfo> l = msg.getList();
+		for (TaxiPointInfo ti : l) {
+			if(this.ordercarpool.isKeyInCache(ti.getDriver().getLicenseNumber()))
+			{
+				String carNumber=ti.getDriver().getLicenseNumber();
+				Element e = this.ordercarpool.get(carNumber);
+				if(e!=null){
+					OrderObject o = (OrderObject) e.getObjectValue();
+					MQMsg1012 mqmsg=new MQMsg1012();
+					mqmsg.setOrderid(o.getOrder().getOrderid());
+					mqmsg.setLon(ti.getLon());
+					mqmsg.setLat(ti.getLat());
+					mqmsg.setCarNumber(carNumber);
+				}
+			}
+		}
+		
+	}
 
+	/**
+	 * 通知乘客付款
+	 * @param msg
+	 */
+	public void callPayMoney(Msg2012 msg){
+		//移除司机位置信息关系
+		this.ordercarpool.remove(msg.getCarNumber());
+		MQMsg1006 mqmsg = new MQMsg1006();
+//		mqmsg.getHead().setCustomId("customid");
+		mqmsg.setOrderid(msg.getHeader().getOrderid());
+		mqmsg.setCarlicensenumber(msg.getCarNumber());
+
+		mqmsg.setDriverid(msg.getCertificate());
+		mqmsg.setFee(msg.getSum());
+		mqmsg.setFee2(msg.getCost());
+					
+		mqmsg.setTime(msg.getBcdtime());
+		MQService.getInstance().sendMsg(mqmsg);
+	}
+	
 	/**
 	 * 司机抢单
 	 * 
@@ -395,6 +449,22 @@ public class OrderService {
 		}
 	}
 
+	/**
+	 * 预约订单开始执行通知
+	 * @param msg
+	 */
+	public void startReseOrder(Msg2011 msg){
+		this.ordercarpool.put(new Element(msg.getCarNumber(), msg.getHeader().getOrderid()));
+		MQMsg1005 mqmsg = new MQMsg1005();
+//		mqmsg.getHead().setCustomId("customid");
+		mqmsg.setOrderid(msg.getHeader().getOrderid());
+		mqmsg.setCarLicensenumber(msg.getCarNumber());
+		mqmsg.setLat(msg.getLat());
+		mqmsg.setLon(msg.getLng());
+		mqmsg.setTime(msg.getBcdtime());
+		MQService.getInstance().sendMsg(mqmsg);
+	}
+	
 	/**
 	 * 乘客取消订单
 	 * 

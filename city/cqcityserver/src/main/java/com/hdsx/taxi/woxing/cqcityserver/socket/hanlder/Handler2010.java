@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.bean.CarInfo;
+import com.hdsx.taxi.woxing.cqcityserver.order.OrderService;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2010;
 import com.hdsx.taxi.woxing.cqmsg.msg.pojo.TaxiPointInfo;
@@ -52,7 +53,9 @@ public class Handler2010 implements IHandler {
 
 				c.setCreditLevel(getCreditLeveString(o.getDriver()
 						.getCreditLevel()));
+				OrderService.getInstance().updateOrderedCar(msg);
 				LocationService.getInstance().update(c);
+				OrderService.getInstance().updateOrderedCar(msg);
 				TaxiDistrbuteService.getInstance().update(c);
 			}
 

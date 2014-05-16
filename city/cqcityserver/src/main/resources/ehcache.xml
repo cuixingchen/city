@@ -23,5 +23,11 @@
 	<cache name="tcpmsgcache" maxElementsInMemory="10000" eternal="false"
 		timeToIdleSeconds="1200" timeToLiveSeconds="1200" diskSpoolBufferSizeMB="30"
 		maxElementsOnDisk="10000000" diskExpiryThreadIntervalSeconds="120"
+		memoryStoreEvictionPolicy="FIFO"></cache>
+	
+	<!-- 订单号跟车辆信息缓存 -->
+	<cache name="ordercarpoolcache" maxElementsInMemory="10000" eternal="false"
+		timeToIdleSeconds="1200" timeToLiveSeconds="1200" diskSpoolBufferSizeMB="30"
+		maxElementsOnDisk="10000000" diskExpiryThreadIntervalSeconds="120"
 		memoryStoreEvictionPolicy="FIFO"></cache>	
 </ehcache>
