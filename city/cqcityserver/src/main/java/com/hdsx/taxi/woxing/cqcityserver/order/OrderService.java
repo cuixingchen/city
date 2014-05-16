@@ -372,6 +372,7 @@ public class OrderService {
 					mqmsg.setLon(ti.getLon());
 					mqmsg.setLat(ti.getLat());
 					mqmsg.setCarNumber(carNumber);
+					MQService.getInstance().sendMsg(mqmsg);
 				}
 			}
 		}
