@@ -186,7 +186,7 @@ public class OrderService {
 		Element e = orderpool.get(oi.getOrderid());
 		if (e != null) {
 			OrderObject o = (OrderObject) e.getObjectValue();
-			if (o.getState() == 1) {// 订单已经取消
+			if (o.getState() != 0) {// 订单已经取消
 				logger.debug("订单已经取消，移除订单" + oi.getOrderid());
 				orderpool.remove(oi.getOrderid());
 				return;
@@ -473,11 +473,6 @@ public class OrderService {
 	 */
 	public void cancelByPasssenger(MQMsg0003 msg) {
 
-		/**
-		 * 删除司机位置推送
-		 */
-//		this.ordercarpool.remove(msg.get);
-		
 		long oid = msg.getOrderId();
 
 		Element e = this.orderpool.get(oid);
@@ -489,7 +484,10 @@ public class OrderService {
 			o.setState((byte) 1);
 			this.orderpool.put(e);
 		} else { // 表示订单处理完成，提交到电招中心取消订单
-
+			/**
+			 * 删除司机位置推送
+			 */
+			this.ordercarpool.remove(msg.getCarNum());
 			Msg1002 m = new Msg1002();
 			m.getHeader().setOrderid(msg.getOrderId());
 			m.setCause(msg.getCausecode());
