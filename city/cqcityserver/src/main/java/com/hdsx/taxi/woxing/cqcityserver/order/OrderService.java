@@ -39,6 +39,7 @@ import com.hdsx.taxi.woxing.mqutil.MQService;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0002;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg0003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1001;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1004;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1005;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1006;
@@ -487,6 +488,12 @@ public class OrderService {
 			OrderObject o = (OrderObject) e.getObjectValue();
 			o.setState((byte) 1);
 			this.orderpool.put(e);
+			// 通知中心订单已经取消
+			MQMsg1003 mqmsg = new MQMsg1003();
+			mqmsg.setOrderId(oid);
+			mqmsg.setCancle((byte) 0);// 0:取消成,1:取消失败
+//			mqmsg.setExplain("取消");
+			MQService.getInstance().sendMsg(mqmsg);
 		} else { // 表示订单处理完成，提交到电招中心取消订单
 			Msg1002 m = new Msg1002();
 			m.getHeader().setOrderid(msg.getOrderId());
