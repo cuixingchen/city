@@ -473,6 +473,11 @@ public class OrderService {
 	 */
 	public void cancelByPasssenger(MQMsg0003 msg) {
 
+		/**
+		 * 删除司机位置推送
+		 */
+//		this.ordercarpool.remove(msg.get);
+		
 		long oid = msg.getOrderId();
 
 		Element e = this.orderpool.get(oid);
@@ -516,16 +521,19 @@ public class OrderService {
 	 * @param msg
 	 */
 	public void cancelByDriver(Msg2005 msg) {
+		/**
+		 * 删除司机位置推送
+		 */
+		this.ordercarpool.remove(msg.getCarNumber());
 		long oid = msg.getHeader().getOrderid();
-
 		Element e = this.orderpool.get(oid);
-
+		
 		if (e != null) // 表示订单正在处理过程中
 		{
 
 			OrderObject o = (OrderObject) e.getObjectValue();
 			o.setState((byte) 2);
-			this.orderpool.replace(e);
+			this.orderpool.put(e);
 		}
 
 		else {
