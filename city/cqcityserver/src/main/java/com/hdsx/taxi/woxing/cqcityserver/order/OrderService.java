@@ -473,6 +473,10 @@ public class OrderService {
 	 */
 	public void cancelByPasssenger(MQMsg0003 msg) {
 
+		/**
+		 * 删除司机位置推送
+		 */
+		this.ordercarpool.remove(msg.getCarNum());
 		long oid = msg.getOrderId();
 
 		Element e = this.orderpool.get(oid);
@@ -484,10 +488,6 @@ public class OrderService {
 			o.setState((byte) 1);
 			this.orderpool.put(e);
 		} else { // 表示订单处理完成，提交到电招中心取消订单
-			/**
-			 * 删除司机位置推送
-			 */
-			this.ordercarpool.remove(msg.getCarNum());
 			Msg1002 m = new Msg1002();
 			m.getHeader().setOrderid(msg.getOrderId());
 			m.setCause(msg.getCausecode());
