@@ -275,13 +275,15 @@ public class OrderService {
 		Collections.sort(list, new BidComparator(o.getOrder()));
 
 		Msg2001 m = list.get(0);
-		// //向中标司机发送成功消息
-		Msg1003 msg_sucess = new Msg1003();
-		msg_sucess.getHeader().setOrderid(o.getOrder().getOrderid());
-		msg_sucess.setCarNumber(m.getCarNumber());
-		TcpClient.getInstance().send(msg_sucess);
-		this.ordercarpool.put(new Element(m.getCarNumber(), o));
-
+		
+		if(o.getOrder().getOrderType()==0){
+			// //向中标司机发送成功消息
+			Msg1003 msg_sucess = new Msg1003();
+			msg_sucess.getHeader().setOrderid(o.getOrder().getOrderid());
+			msg_sucess.setCarNumber(m.getCarNumber());
+			TcpClient.getInstance().send(msg_sucess);
+			this.ordercarpool.put(new Element(m.getCarNumber(), o));
+		}
 		// 通知乘客
 		MQMsg1001 msg_p = new MQMsg1001();
 
@@ -456,7 +458,7 @@ public class OrderService {
 	 * @param msg
 	 */
 	public void startReseOrder(Msg2011 msg){
-		this.ordercarpool.put(new Element(msg.getCarNumber(), msg.getHeader().getOrderid()));
+//		this.ordercarpool.put(new Element(msg.getCarNumber(), msg.getHeader().getOrderid()));
 		MQMsg1005 mqmsg = new MQMsg1005();
 //		mqmsg.getHead().setCustomId("customid");
 		mqmsg.setOrderid(msg.getHeader().getOrderid());
