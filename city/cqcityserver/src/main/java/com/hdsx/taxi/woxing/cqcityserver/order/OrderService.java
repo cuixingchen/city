@@ -23,6 +23,7 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg1002;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1003;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1004;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1007;
+import com.hdsx.taxi.woxing.cqmsg.msg.Msg1011;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1015;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg1101;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2001;
@@ -43,6 +44,7 @@ import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1003;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1004;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1005;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1006;
+import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1007;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1008;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1009;
 import com.hdsx.taxi.woxing.mqutil.message.order.MQMsg1012;
@@ -282,8 +284,8 @@ public class OrderService {
 			msg_sucess.getHeader().setOrderid(o.getOrder().getOrderid());
 			msg_sucess.setCarNumber(m.getCarNumber());
 			TcpClient.getInstance().send(msg_sucess);
-			this.ordercarpool.put(new Element(m.getCarNumber(), o));
 		}
+		this.ordercarpool.put(new Element(m.getCarNumber(), o.getOrder().getOrderid()));
 		// 通知乘客
 		MQMsg1001 msg_p = new MQMsg1001();
 
@@ -369,9 +371,10 @@ public class OrderService {
 				String carNumber=ti.getDriver().getLicenseNumber();
 				Element e = this.ordercarpool.get(carNumber);
 				if(e!=null){
-					OrderObject o = (OrderObject) e.getObjectValue();
+//					OrderInfo order = (OrderInfo) e.getObjectValue();
+					long orderId = (long) e.getObjectValue();
 					MQMsg1012 mqmsg=new MQMsg1012();
-					mqmsg.setOrderid(o.getOrder().getOrderid());
+					mqmsg.setOrderid(orderId);
 					mqmsg.setLon(ti.getLon());
 					mqmsg.setLat(ti.getLat());
 					mqmsg.setCarNumber(carNumber);
@@ -458,7 +461,10 @@ public class OrderService {
 	 * @param msg
 	 */
 	public void startReseOrder(Msg2011 msg){
-//		this.ordercarpool.put(new Element(msg.getCarNumber(), msg.getHeader().getOrderid()));
+//		Element e=this.ordercarpool.get(msg.getCarNumber());
+//		OrderInfo order=(OrderInfo) e.getObjectValue();
+//		order.setOrderType((byte) 0);
+		this.ordercarpool.put(new Element(msg.getCarNumber(), msg.getHeader().getOrderid()));
 		MQMsg1005 mqmsg = new MQMsg1005();
 //		mqmsg.getHead().setCustomId("customid");
 		mqmsg.setOrderid(msg.getHeader().getOrderid());
@@ -467,6 +473,28 @@ public class OrderService {
 		mqmsg.setLon(msg.getLng());
 		mqmsg.setTime(msg.getBcdtime());
 		MQService.getInstance().sendMsg(mqmsg);
+	}
+	
+	/**
+	 * 乘客主动点击上车
+	 * @param msg
+	 */
+	public void getOnTaxi(MQMsg1007 msg){
+		this.ordercarpool.remove(msg.getCarNum());
+		Msg1011 out = new Msg1011();
+		out.setBcdtime(msg.getTime());
+		out.setLng(msg.getLon());
+		out.setLng(msg.getLat());
+		out.getHeader().setOrderid(msg.getOrderid());
+		TcpClient.getInstance().send(out);
+	}
+	
+	/**
+	 * 平台通知乘客已上车
+	 * @param carNum
+	 */
+	public void getOnTaxi(String carNum){
+		this.ordercarpool.remove(carNum);
 	}
 	
 	/**
@@ -591,28 +619,29 @@ public class OrderService {
 			if(oo.getOrder().getOrderType()==OrderContants.CALLTAXINOW){
 				if (oo.getDrivers().size() >= OrderContants.CALLTAXI_ORDER_DRIVERS) {
 					doSucess(oo);
-				} else {
-					if (System.currentTimeMillis() - oo.getSendedtime() > OrderContants.CALLTAXI_MINWAITINGTIME * 1000l) {
-						if(oo.getDrivers().size() ==0){
-							MQMsg1009 mq = new MQMsg1009();
-							OrderInfo oi = oo.getOrder();
-							mq.setOrderid(oi.getOrderid());
-							mq.setReasoncode((byte) 1);
-							mq.setDescribtion("没有司机抢单");
-							MQService.getInstance().sendMsg(mq);
-							logger.debug("没有司机抢单，移除订单" + oi.getOrderid());
-							orderpool.remove(oi.getOrderid());
-						}else{
-							doSucess(oo);
-						}
-						
-					}
 				}
+			}
+			if (System.currentTimeMillis() - oo.getSendedtime() > OrderContants.CALLTAXI_MINWAITINGTIME * 1000l) {
+				if(oo.getDrivers().size() ==0){
+					MQMsg1009 mq = new MQMsg1009();
+					OrderInfo oi = oo.getOrder();
+					mq.setOrderid(oi.getOrderid());
+					mq.setReasoncode((byte) 1);
+					mq.setDescribtion("没有司机抢单");
+					MQService.getInstance().sendMsg(mq);
+					logger.debug("没有司机抢单，移除订单" + oi.getOrderid());
+					orderpool.remove(oi.getOrderid());
+				}else{
+					doSucess(oo);
+				}
+				
 			}
 		}
 
 	}
 
+	
+	
 	/**
 	 * 订单对象实体，加入了司机抢单存储
 	 * 

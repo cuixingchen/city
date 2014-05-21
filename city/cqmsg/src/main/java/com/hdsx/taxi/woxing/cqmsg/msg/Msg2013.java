@@ -28,6 +28,7 @@ public class Msg2013 extends AbsMsg {
 	 */
 	private static final Logger logger = LoggerFactory.getLogger(Msg2013.class);
 
+	private String carNumber ; // 车牌号
 	private double lng; // 经度
 	private double lat; // 纬度
 	private String bcdtime; // 时间 yyyymmddhhnnss
@@ -46,6 +47,9 @@ public class Msg2013 extends AbsMsg {
 	protected byte[] bodytoBytes() {
 		ByteBuffer b = ByteBuffer.allocate(1024); // 1 kb 缓冲区
 
+		ByteBuffer b_carNumber = ByteBuffer.allocate(8);
+		b.put(b_carNumber.put(Converter.getBytes(carNumber)).array());
+		
 		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec.Coor2UInt(lng)));
 		b.put(Converter.unSigned32LongToBigBytes(CoordinateCodec.Coor2UInt(lat)));
 
@@ -64,9 +68,11 @@ public class Msg2013 extends AbsMsg {
 
 		try {
 
-			// ByteBuffer bf = ByteBuffer.wrap(b);
+			 ByteBuffer bf = ByteBuffer.wrap(b);
 			int offset = this.head.getLength();
 
+			this.carNumber = Converter.toGBKString(bf.array(),offset,8);
+			offset += 8 ;
 			long lng_l = Converter.bytes2Unsigned32Long(b, offset);
 			lng = CoordinateCodec.Coor2Float(Converter.bytes2Unsigned32Long(b,
 					offset));
@@ -112,4 +118,13 @@ public class Msg2013 extends AbsMsg {
 		this.bcdtime = bcdtime;
 	}
 
+	public String getCarNumber() {
+		return carNumber;
+	}
+
+	public void setCarNumber(String carNumber) {
+		this.carNumber = carNumber;
+	}
+	
+	
 }

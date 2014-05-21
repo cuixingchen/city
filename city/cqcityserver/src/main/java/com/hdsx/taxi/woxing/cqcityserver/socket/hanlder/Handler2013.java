@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.bean.util.coor.CoordinateCodec;
+import com.hdsx.taxi.woxing.cqcityserver.order.OrderService;
 import com.hdsx.taxi.woxing.cqcityserver.socket.TcpClient;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg2013;
 import com.hdsx.taxi.woxing.mqutil.MQService;
@@ -31,6 +32,8 @@ public class Handler2013 implements IHandler {
 		if (m instanceof Msg2013) {
 			Msg2013 msg = (Msg2013) m;
 			// TcpClient.getInstance().sendAnsworMsg(msg);
+			//让对应车辆的地址推送关闭
+			OrderService.getInstance().getOnTaxi(msg.getCarNumber());
 			MQMsg1007 mqmsg = new MQMsg1007();
 			mqmsg.setOrderid(msg.getHeader().getOrderid());
 			mqmsg.setLat(msg.getLat());
