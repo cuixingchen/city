@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.MsgFactory;
+import com.hdsx.taxi.woxing.cqmsg.MsgHeader;
 
 public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 	/**
@@ -62,7 +63,7 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 			throws Exception {
 
 		byte[] bt = msg.toBytes();
-//		logger.debug("开始发送消息：" + msg.toString());
+		// logger.debug("开始发送消息：" + msg.toString());
 		if (logger.isDebugEnabled()) {
 
 			StringBuilder sb = new StringBuilder();
@@ -94,7 +95,7 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
 			List<Object> out) throws Exception {
-//		logger.debug("收到消息,开始解码消息");
+		// logger.debug("收到消息,开始解码消息");
 		while (in.readableBytes() > 0) {
 			byte b = in.readByte();
 			if (b != FLAG) {
@@ -106,9 +107,9 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 					bf.position(0);
 					bf.get(bytes);
 					AbsMsg msg = MsgFactory.genMsg(bytes);
-//					logger.info("收到消息-" + getBytesHexString(bytes));
+					// logger.info("收到消息-" + getBytesHexString(bytes));
 					msg.fromBytes(bytes);
-//					logger.debug("decode 收到消息:" + msg.toString());
+					// logger.debug("decode 收到消息:" + msg.toString());
 					if (msg != null) {
 						out.add(msg);
 					}
@@ -126,4 +127,23 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 		}
 		return sb.toString();
 	}
+
+//	@Override
+//	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
+//			List<Object> out) throws Exception {
+//
+//		while (in.readableBytes() > 0) {
+//			byte b = in.readByte();
+//			if (b == FLAG)
+//				break;
+//		}
+//		if(in.readableBytes()>MsgHeader.MSG_HEAD_LEN)
+//		{
+//			short len=in.readShort();
+//			ByteBuffer dst=ByteBuffer.allocate(len+MsgHeader.MSG_HEAD_LEN-2);
+//			if()
+//			in.readBytes(dst);
+//			
+//		}
+//	}
 }

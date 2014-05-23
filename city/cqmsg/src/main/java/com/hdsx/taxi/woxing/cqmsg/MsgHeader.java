@@ -33,6 +33,7 @@ public class MsgHeader implements Serializable {
 	private static final Logger logger = LoggerFactory
 			.getLogger(MsgHeader.class);
 
+	public static final byte header_Length=29;
 	/**
 	 * 
 	 */
@@ -45,7 +46,7 @@ public class MsgHeader implements Serializable {
 	private short bodylen; // 剩余消息总长度
 
 	public final static byte MSG_HEAD_FLAG = 0x7e; // 标识位
-	public final static byte MSG_HEAD_LEN = 2 + 4 + 1 + 4 + 2;
+	public final static byte MSG_HEAD_LEN = 2 + 2 + 4 + 1 + 4;
 
 	// 0x7e
 	/**
@@ -61,11 +62,11 @@ public class MsgHeader implements Serializable {
 	public byte[] tobytes() {
 		ByteBuffer b = ByteBuffer.allocate(getLength());
 
+		b.putShort((short) bodylen);
 		b.putShort((short) msgid);
 		b.putInt(sn);
 		b.put((byte) flag);
 		b.put(Converter.unSigned32LongToBigBytes(orderid));
-		b.putShort((short) bodylen);
 
 		return b.array();
 
@@ -76,6 +77,10 @@ public class MsgHeader implements Serializable {
 			ByteBuffer bf = ByteBuffer.wrap(b);
 			int offset = 0;
 
+
+			this.bodylen = bf.getShort(offset);
+			offset += 2;
+			
 			this.msgid = bf.getShort(offset);
 			offset += 2;
 
@@ -86,9 +91,6 @@ public class MsgHeader implements Serializable {
 			offset += 1;
 
 			this.orderid = Converter.bigBytes2Unsigned32Long(b, offset);
-			offset += 4;
-
-			this.bodylen = bf.getShort(offset);
 			return true;
 		} catch (Exception ex) {
 
@@ -109,7 +111,7 @@ public class MsgHeader implements Serializable {
 	 * @return
 	 */
 	public int getLength() {
-		return 2 + 4 + 1 + 4 + 2;
+		return 2 + 2 + 4 + 1 + 4;
 	}
 
 	public short getMsgid() {
