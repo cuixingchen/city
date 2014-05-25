@@ -62,11 +62,13 @@ public class MsgFactory {
 		// TODO 补充遗漏的消息 @谢光泉
 
 		buffer.clear();
-		buffer.put(bytes[0]);
-		buffer.put(bytes[1]);
+		buffer.put(bytes[2]);
+		buffer.put(bytes[3]);
 
 		buffer.position(0);
+//		buffer.position(2);
 		short id = buffer.getShort();
+		 
 
 		int msgID = id;
 		AbsMsg m = null;
