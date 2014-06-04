@@ -68,69 +68,69 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 		return false;
 	}
 
-	@Override
-	protected void decode(ChannelHandlerContext ctx, ByteBuf buffer,
-			List<Object> out) throws Exception {
-		try {
-			if (!searchHead(buffer))
-				return;
-			int buffLen = buffer.readableBytes();
-			int index = buffer.readerIndex();
-			if (buffLen < Head_Length)
-				return;
-
-			byte[] lenBytes = new byte[2];
-			buffer.getBytes(index + 1, lenBytes);
-			int len = Converter.bytes2UnSigned16Int(lenBytes, 0);// 获取剩余消息长度
-			// int dataLen = len +
-			// TCPConstants.TCP_HEADER_LENGTH;//加上消息头长度后数据总长度
-			if (len == 0)
-				return;
-			int dataLen = 1+13+len+1+1;// 后修改的整个包的大小应该包含消息头的长度;
-			if (buffLen < dataLen)
-				return;
-
-			byte[] msgbytes = new byte[dataLen-2];
-			buffer.skipBytes(1);
-			buffer.readBytes(msgbytes);
-			buffer.skipBytes(1);
-			AbsMsg m = MsgFactory.genMsg(msgbytes);
-			m.fromBytes(msgbytes);
-			out.add(m);
-		} catch (Exception e) {
-
-			e.printStackTrace();
-
-		}
-
-	}
 //	@Override
-//	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
+//	protected void decode(ChannelHandlerContext ctx, ByteBuf buffer,
 //			List<Object> out) throws Exception {
-//		// logger.debug("收到消息,开始解码消息");
-//		while (in.readableBytes() > 0) {
-//			byte b = in.readByte();
-//			if (b != FLAG) {
-//				bf.put(b);
-//			} else {
-//				if (bf.position() > 0) {
+//		try {
+//			if (!searchHead(buffer))
+//				return;
+//			int buffLen = buffer.readableBytes();
+//			int index = buffer.readerIndex();
+//			if (buffLen < Head_Length)
+//				return;
 //
-//					byte[] bytes = new byte[bf.position()];
-//					bf.position(0);
-//					bf.get(bytes);
-//					AbsMsg msg = MsgFactory.genMsg(bytes);
-//					// logger.info("收到消息-" + getBytesHexString(bytes));
-//					msg.fromBytes(bytes);
-//					// logger.debug("decode 收到消息:" + msg.toString());
-//					if (msg != null) {
-//						out.add(msg);
-//					}
-//					bf.clear();
-//				}
-//			}
+//			byte[] lenBytes = new byte[2];
+//			buffer.getBytes(index + 1, lenBytes);
+//			int len = Converter.bytes2UnSigned16Int(lenBytes, 0);// 获取剩余消息长度
+//			// int dataLen = len +
+//			// TCPConstants.TCP_HEADER_LENGTH;//加上消息头长度后数据总长度
+//			if (len == 0)
+//				return;
+//			int dataLen = 1+13+len+1+1;// 后修改的整个包的大小应该包含消息头的长度;
+//			if (buffLen < dataLen)
+//				return;
+//
+//			byte[] msgbytes = new byte[dataLen-2];
+//			buffer.skipBytes(1);
+//			buffer.readBytes(msgbytes);
+//			buffer.skipBytes(1);
+//			AbsMsg m = MsgFactory.genMsg(msgbytes);
+//			m.fromBytes(msgbytes);
+//			out.add(m);
+//		} catch (Exception e) {
+//
+//			e.printStackTrace();
+//
 //		}
 //
 //	}
+	@Override
+	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
+			List<Object> out) throws Exception {
+		// logger.debug("收到消息,开始解码消息");
+		while (in.readableBytes() > 0) {
+			byte b = in.readByte();
+			if (b != FLAG) {
+				bf.put(b);
+			} else {
+				if (bf.position() > 0) {
+
+					byte[] bytes = new byte[bf.position()];
+					bf.position(0);
+					bf.get(bytes);
+					AbsMsg msg = MsgFactory.genMsg(bytes);
+					// logger.info("收到消息-" + getBytesHexString(bytes));
+					msg.fromBytes(bytes);
+					// logger.debug("decode 收到消息:" + msg.toString());
+					if (msg != null) {
+						out.add(msg);
+					}
+					bf.clear();
+				}
+			}
+		}
+
+	}
 
 	static String getBytesHexString(byte[] bytes) {
 		StringBuilder sb = new StringBuilder();

@@ -37,7 +37,6 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg3003;
  */
 public class MsgFactory {
 
-	static ByteBuffer buffer = ByteBuffer.allocate(2);
 
 	/**
 	 * 通过消息id生成消息
@@ -61,6 +60,7 @@ public class MsgFactory {
 		// TODO 完成消息工厂加载 @张阳
 		// TODO 补充遗漏的消息 @谢光泉
 
+		ByteBuffer buffer = ByteBuffer.allocate(2);
 		buffer.clear();
 		buffer.put(bytes[2]);
 		buffer.put(bytes[3]);
