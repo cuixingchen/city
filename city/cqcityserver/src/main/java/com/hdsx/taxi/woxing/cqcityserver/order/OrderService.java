@@ -491,7 +491,7 @@ public class OrderService {
 		Msg1011 out = new Msg1011();
 		out.setBcdtime(msg.getTime());
 		out.setLng(msg.getLon());
-		out.setLng(msg.getLat());
+		out.setLat(msg.getLat());
 		out.getHeader().setOrderid(msg.getOrderid());
 		TcpClient.getInstance().send(out);
 	}
