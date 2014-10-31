@@ -111,45 +111,12 @@ public abstract class AbsMsg implements IMsg {
 	 * @param b
 	 */
 	public boolean fromBytes(byte[] b) {
-		b = decode(b);
-		byte xor = 0;
-		for (int i = 0; i < b.length - 1; i++) {
-			xor ^= b[i];
-		}
-		if (xor != b[b.length - 1])
-			return false;
-
-		this.head = new MsgHeader();
-		if (!this.head.frombytes(b))
-			return false;
+		
 		if (!bodyfrombytes(b))
 			return false;
 		return true;
 		// 标识位
 
-	}
-
-	private byte[] decode(byte[] b) {
-		ByteBuffer buffer1 = ByteBuffer.wrap(b);
-		buffer.position(0);
-		while (buffer1.remaining() > 0) {
-
-			byte d = buffer1.get();
-			if (d == 0x7d) {
-				byte e = buffer1.get();
-				if (e == 0x02)
-					buffer.put((byte) 0x7e);
-				else if (e == 0x01)
-					buffer.put((byte) 0x7d);
-			} else {
-				buffer.put(d);
-			}
-		}
-
-		byte[] result = new byte[buffer.position()];
-		buffer.position(0);
-		buffer.get(result);
-		return result;
 	}
 
 	/**

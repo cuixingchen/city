@@ -24,8 +24,10 @@ import com.hdsx.taxi.woxing.cqcityserver.order.OrderContants;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.CalTaxiIndexThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.DoOrderHandleThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.HeartBeatThread;
+import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ParseMsgThreadManager;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReConnectedThread;
 import com.hdsx.taxi.woxing.cqcityserver.socket.thread.ReSendMsgThread;
+import com.hdsx.taxi.woxing.cqcityserver.socket.utils.TcpPropertiesUtil;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.MessageID;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
@@ -111,6 +113,7 @@ public class TcpClient extends Thread {
 		try {
 			p.load(TcpClient.class.getResourceAsStream("/tcp.properties"));
 
+			TcpPropertiesUtil.p=p;
 			this.hostname = p.getProperty("tcp.host");
 			logger.info("run() - String hostname={}", hostname); //$NON-NLS-1$
 
@@ -150,7 +153,7 @@ public class TcpClient extends Thread {
 
 			cf = b.connect(hostname, hostport).sync();
 			// cf.channel().closeFuture().sync();
-
+			ParseMsgThreadManager.getInstance().run(0, 0);
 		} catch (InterruptedException | IOException e) {
 			logger.error("init(String, int, String, String)", e); //$NON-NLS-1$
 		} finally {

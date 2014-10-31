@@ -50,23 +50,23 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 	 * @param buffer
 	 * @return
 	 */
-	private boolean searchHead(ByteBuf buffer) {
-
-		int i = 0;
-		int buffLen = buffer.readableBytes();
-		int readIndex = buffer.readerIndex();
-		int startFlat = 0;
-		while (i < buffLen) {
-			startFlat = buffer.getByte(readIndex + i);
-			if (startFlat==FLAG) {
-				if (i > 0)
-					buffer.skipBytes(i);
-				return true;
-			}
-			i++;
-		}
-		return false;
-	}
+//	private boolean searchHead(ByteBuf buffer) {
+//
+//		int i = 0;
+//		int buffLen = buffer.readableBytes();
+//		int readIndex = buffer.readerIndex();
+//		int startFlat = 0;
+//		while (i < buffLen) {
+//			startFlat = buffer.getByte(readIndex + i);
+//			if (startFlat==FLAG) {
+//				if (i > 0)
+//					buffer.skipBytes(i);
+//				return true;
+//			}
+//			i++;
+//		}
+//		return false;
+//	}
 
 //	@Override
 //	protected void decode(ChannelHandlerContext ctx, ByteBuf buffer,
@@ -118,12 +118,8 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 					byte[] bytes = new byte[bf.position()];
 					bf.position(0);
 					bf.get(bytes);
-					AbsMsg msg = MsgFactory.genMsg(bytes);
-					// logger.info("收到消息-" + getBytesHexString(bytes));
-					msg.fromBytes(bytes);
-					// logger.debug("decode 收到消息:" + msg.toString());
-					if (msg != null) {
-						out.add(msg);
+					if (bytes.length>0) {
+						out.add(bytes);
 					}
 					bf.clear();
 				}

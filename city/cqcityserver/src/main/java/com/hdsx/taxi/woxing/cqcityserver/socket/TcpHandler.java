@@ -27,25 +27,16 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 		// }
 
 		try {
-			if (msg instanceof AbsMsg) {
+			if (msg instanceof byte[]) {
 
-				final AbsMsg m = (AbsMsg) msg;
-				short msgid = m.getHeader().getMsgid();
-				if (msgid != MessageID.msg0x2010) {
-					TcpClient.getInstance().sendAnsworMsg(m);
+				final byte[] msgbytes = (byte[]) msg;
+				try {
+					MsgQueue.getRecqueue().put(msgbytes);
+				} catch (InterruptedException e) {
+					logger.error("主handler---接收消息队列存储消息失败", e);
 				}
-				new Thread(new Runnable() {
-
-					@Override
-					public void run() {
-						IHandler handler = HandlerFactory.getHandler(m);
-						if (handler != null) {
-							handler.doHandle(m);
-						}
-
-					}
-				}).run();
-
+			}else {
+				logger.error("主handler---消息解码有误，请检查！！");
 			}
 
 		} finally {

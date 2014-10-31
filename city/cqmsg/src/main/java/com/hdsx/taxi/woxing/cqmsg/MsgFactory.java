@@ -1,7 +1,5 @@
 package com.hdsx.taxi.woxing.cqmsg;
 
-import java.nio.ByteBuffer;
-
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0001;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0002;
 import com.hdsx.taxi.woxing.cqmsg.msg.Msg0003;
@@ -37,7 +35,6 @@ import com.hdsx.taxi.woxing.cqmsg.msg.Msg3003;
  */
 public class MsgFactory {
 
-
 	/**
 	 * 通过消息id生成消息
 	 * 
@@ -55,22 +52,9 @@ public class MsgFactory {
 	 * @param bytes
 	 * @return
 	 */
-	public static AbsMsg genMsg(byte[] bytes) {
+	public static AbsMsg genMsg(MsgHeader head) {
 
-		// TODO 完成消息工厂加载 @张阳
-		// TODO 补充遗漏的消息 @谢光泉
-
-		ByteBuffer buffer = ByteBuffer.allocate(2);
-		buffer.clear();
-		buffer.put(bytes[2]);
-		buffer.put(bytes[3]);
-
-		buffer.position(0);
-//		buffer.position(2);
-		short id = buffer.getShort();
-		 
-
-		int msgID = id;
+		int msgID = head.getMsgid();
 		AbsMsg m = null;
 		switch (msgID) {
 		case MessageID.msg0x0001:
@@ -155,11 +139,7 @@ public class MsgFactory {
 		default:
 			break;
 		}
-		// if (id == 0x0001)
-		// return new Msg0001();
-		// else if (id == 0x0002)
-		// return new Msg0002();
-
+		m.head = head;
 		return m;
 
 	}
