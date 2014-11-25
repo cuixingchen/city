@@ -43,6 +43,12 @@ public class Msg1005 extends AbsMsg{
 //	}
 
 	@Override
+	public String toString() {
+		return "Msg1005 [type=" + type + ", context=" + context + ", head="
+				+ head + ", getMsgID()=" + getMsgID() + "]";
+	}
+
+	@Override
 	protected byte[] bodytoBytes() {
 		ByteBuffer b = ByteBuffer.allocate(1024);  // 1 kb 缓冲区
 		

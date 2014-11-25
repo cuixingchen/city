@@ -80,29 +80,16 @@ public class TcpClient extends Thread {
 	private int connstate = 0;
 
 	public void reconnect() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("reconnect() - start"); //$NON-NLS-1$
-		}
 
+		logger.info("--------断线重连开始---------");
 		if (this.connstate == 0)
 			init();
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("reconnect() - end"); //$NON-NLS-1$
-		}
 	}
 
 	@Override
 	public void run() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("run() - start"); //$NON-NLS-1$
-		}
-
 		init();
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("run() - end"); //$NON-NLS-1$
-		}
 	}
 
 	private void init() {
@@ -113,14 +100,12 @@ public class TcpClient extends Thread {
 		try {
 			p.load(TcpClient.class.getResourceAsStream("/tcp.properties"));
 
-			TcpPropertiesUtil.p=p;
+			TcpPropertiesUtil.p = p;
 			this.hostname = p.getProperty("tcp.host");
-			logger.info("run() - String hostname={}", hostname); //$NON-NLS-1$
 
 			this.hostport = Integer.parseInt(p.getProperty("tcp.port"));
 
 			String loglevelname = p.getProperty("tcp.loglevel").toUpperCase();
-			logger.info("run() - String loglevelname={}", loglevelname); //$NON-NLS-1$
 
 			this.loglevel = LogLevel.valueOf(loglevelname);
 
@@ -144,18 +129,17 @@ public class TcpClient extends Thread {
 						protected void initChannel(SocketChannel ch)
 								throws Exception {
 							ch.pipeline().addLast(new CQTcpCodec(),
-									new LoggingHandler(loglevel),
 									new TcpHandler());
 						}
 					});
 
-			logger.info("init(String, int, String, String) - ready to connect" + hostname + ":" + hostport); //$NON-NLS-1$
+			logger.info("服务端地址：" + hostname + ":" + hostport); //$NON-NLS-1$
 
 			cf = b.connect(hostname, hostport).sync();
 			// cf.channel().closeFuture().sync();
 			ParseMsgThreadManager.getInstance().run(0, 0);
 		} catch (InterruptedException | IOException e) {
-			logger.error("init(String, int, String, String)", e); //$NON-NLS-1$
+			logger.error("客户端初始化失败：", e); //$NON-NLS-1$
 		} finally {
 			// group.shutdownGracefully();
 		}
@@ -171,10 +155,8 @@ public class TcpClient extends Thread {
 		this.isLogined = b;
 
 		if (b) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("loginOK(boolean) - 启动线程"); //$NON-NLS-1$
-			}
 
+			logger.info("登陆成功开始启动消息重发、心跳、断线重连、打车指数、订单处理服务");
 			ReSendMsgThread.getInstance().run(this.resendmsgdealy * 1000,
 					this.resendmsgdealy * 1000);
 
@@ -187,9 +169,7 @@ public class TcpClient extends Thread {
 
 			DoOrderHandleThread.getInstance().run(
 					OrderContants.CALLTAXI_MINWAITINGTIME * 1000, 100);
-			if (logger.isDebugEnabled()) {
-				logger.debug("loginOK(boolean) - 启动重新连接线程成功"); //$NON-NLS-1$
-			}
+			logger.info("---------初始化完成-------");
 			this.connstate = 1;
 		}
 	}
@@ -201,13 +181,12 @@ public class TcpClient extends Thread {
 	 */
 	public void send(AbsMsg m) {
 		// try {
-		logger.debug("开始发送tcp消息:" + m.toString());
 		if (this.isLogined) {
 			if (chtx != null && chtx.channel().isOpen()) {
 				MsgCache.getInstance().put(m);
-				ChannelFuture cf = chtx.write(m);
+				chtx.write(m);
 				chtx.flush();
-				logger.debug("cf - :" + cf.toString() + cf.isSuccess());
+				logger.info("发送消息(已加入缓存)：" + m.toString());
 			}
 		}
 	}
@@ -222,9 +201,7 @@ public class TcpClient extends Thread {
 			if (chtx != null && chtx.channel().isOpen()) {
 				ChannelFuture cf = chtx.write(m);
 				chtx.flush();
-				if (logger.isDebugEnabled()) {
-					logger.debug("cf - :" + cf.toString() + cf.isSuccess());
-				}
+				logger.info("发送消息：" + m.toString());
 			}
 		}
 	}
@@ -236,10 +213,6 @@ public class TcpClient extends Thread {
 	 * @author sid
 	 */
 	public void login() {
-		if (logger.isDebugEnabled()) {
-			logger.debug("login() - start"); //$NON-NLS-1$
-		}
-
 		// 打开连接时发送登录消息
 		try {
 
@@ -249,16 +222,11 @@ public class TcpClient extends Thread {
 				MsgCache.getInstance().put(m);
 				ChannelFuture cf = chtx.write(m);
 				chtx.flush();
-				logger.debug("cf - :" + cf.toString() + cf.isSuccess());
+				logger.info("发送登陆消息：" + m.toString());
 			}
 
 		} catch (Exception e) {
-			logger.info("login() - Exception" + e.getStackTrace()); //$NON-NLS-1$
-			e.printStackTrace();
-		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("login() - end"); //$NON-NLS-1$
+			logger.error("登陆异常：", e);
 		}
 	}
 
@@ -306,7 +274,7 @@ public class TcpClient extends Thread {
 		if (chtx != null && chtx.channel().isOpen()) {
 			ChannelFuture cf = chtx.write(mout);
 			chtx.flush();
-			logger.debug("cf - :" + cf.toString() + cf.isSuccess());
+			logger.debug("发送通用应答:" + mout);
 		}
 	}
 

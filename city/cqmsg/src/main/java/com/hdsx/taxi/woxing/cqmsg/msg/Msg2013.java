@@ -125,6 +125,13 @@ public class Msg2013 extends AbsMsg {
 	public void setCarNumber(String carNumber) {
 		this.carNumber = carNumber;
 	}
+
+	@Override
+	public String toString() {
+		return "Msg2013 [carNumber=" + carNumber + ", lng=" + lng + ", lat="
+				+ lat + ", bcdtime=" + bcdtime + ", head=" + head
+				+ ", getMsgID()=" + getMsgID() + "]";
+	}
 	
 	
 }

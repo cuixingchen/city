@@ -27,10 +27,16 @@ public class Msg0002 extends AbsMsg {
 	// return 0;
 	// }
 
+	
 	@Override
 	protected byte[] bodytoBytes() {
 
 		return new byte[0];
+	}
+
+	@Override
+	public String toString() {
+		return "Msg0002 [head=" + head + ", getMsgID()=" + getMsgID() + "]";
 	}
 
 	@Override

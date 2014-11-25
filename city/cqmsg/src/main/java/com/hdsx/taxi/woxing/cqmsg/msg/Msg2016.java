@@ -79,6 +79,12 @@ public class Msg2016 extends AbsMsg {
 	}
 
 	@Override
+	public String toString() {
+		return "Msg2016 [count=" + count + ", ls=" + ls + ", head=" + head
+				+ ", getMsgID()=" + getMsgID() + "]";
+	}
+
+	@Override
 	protected boolean bodyfrombytes(byte[] b) {
 
 		try {

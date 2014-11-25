@@ -35,6 +35,13 @@ public class Msg1002 extends AbsMsg {
 	private String carNubmer; // 车牌号
 
 	@Override
+	public String toString() {
+		return "Msg1002 [passenger=" + passenger + ", cause=" + cause
+				+ ", carNubmer=" + carNubmer + ", head=" + head
+				+ ", getMsgID()=" + getMsgID() + "]";
+	}
+
+	@Override
 	protected int getMsgID() {
 		return MessageID.msg0x1002;
 	}

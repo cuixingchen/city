@@ -128,6 +128,13 @@ public class Msg2011 extends AbsMsg{
 		this.lat = lat;
 	}
 
+	@Override
+	public String toString() {
+		return "Msg2011 [carNumber=" + carNumber + ", lng=" + lng + ", lat="
+				+ lat + ", bcdtime=" + bcdtime + ", head=" + head
+				+ ", getMsgID()=" + getMsgID() + "]";
+	}
+
 	
 
 }

@@ -78,6 +78,14 @@ public class Msg2001 extends AbsMsg{
 	}
 
 	@Override
+	public String toString() {
+		return "Msg2001 [carNumber=" + carNumber + ", phone=" + phone
+				+ ", certificate=" + certificate + ", bcdtime=" + bcdtime
+				+ ", lng=" + lng + ", lat=" + lat + ", head=" + head
+				+ ", getMsgID()=" + getMsgID() + "]";
+	}
+
+	@Override
 	protected boolean bodyfrombytes(byte[] b) {
 		
 		try {

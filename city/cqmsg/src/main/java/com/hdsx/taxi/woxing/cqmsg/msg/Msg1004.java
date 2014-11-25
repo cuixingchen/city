@@ -44,6 +44,13 @@ public class Msg1004 extends AbsMsg {
 	// }
 
 	@Override
+	public String toString() {
+		return "Msg1004 [carNumber=" + carNumber + ", error=" + error
+				+ ", errorDesc=" + errorDesc + ", head=" + head
+				+ ", getMsgID()=" + getMsgID() + "]";
+	}
+
+	@Override
 	protected byte[] bodytoBytes() {
 		ByteBuffer b = ByteBuffer.allocate(1024); // 1 kb 缓冲区
 

@@ -140,5 +140,13 @@ public class Msg2012 extends AbsMsg{
 		this.bcdtime = bcdtime;
 	}
 
+	@Override
+	public String toString() {
+		return "Msg2012 [carNumber=" + carNumber + ", certificate="
+				+ certificate + ", sum=" + sum + ", cost=" + cost
+				+ ", bcdtime=" + bcdtime + ", head=" + head + ", getMsgID()="
+				+ getMsgID() + "]";
+	}
+
 
 }

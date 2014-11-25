@@ -95,11 +95,11 @@ public class Msg3003 extends AbsMsg{
 	}
 
 
-
 	@Override
 	public String toString() {
 		return "Msg3003 [msgid=" + msgid + ", error=" + error + ", errorDesc="
-				+ errorDesc + ", head=" + head + "]";
+				+ errorDesc + ", head=" + head + ", getMsgID()=" + getMsgID()
+				+ "]";
 	}
 
 	public void setMsgid(short msgid) {

@@ -30,6 +30,11 @@ public class Msg1010 extends AbsMsg{
 //	}
 
 	@Override
+	public String toString() {
+		return "Msg1010 [head=" + head + ", getMsgID()=" + getMsgID() + "]";
+	}
+
+	@Override
 	protected byte[] bodytoBytes() {
 		return new byte[0];
 	}

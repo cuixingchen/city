@@ -10,6 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hdsx.taxi.woxing.cqcityserver.socket.utils.HexStringUtil;
 import com.hdsx.taxi.woxing.cqmsg.AbsMsg;
 import com.hdsx.taxi.woxing.cqmsg.Converter;
 import com.hdsx.taxi.woxing.cqmsg.MsgFactory;
@@ -30,18 +31,8 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 			throws Exception {
 
 		byte[] bt = msg.toBytes();
-		// logger.debug("开始发送消息：" + msg.toString());
-		if (logger.isDebugEnabled()) {
-
-			StringBuilder sb = new StringBuilder();
-			for (byte b : bt) {
-
-				sb.append("[" + Integer.toHexString(b) + "]");
-			}
-			logger.debug("发送消息：" + sb.toString());
-
-		}
 		out.writeBytes(bt);
+		logger.debug("发送原始数据："+HexStringUtil.Bytes2HexString(bt));
 	}
 
 	/**
@@ -107,7 +98,6 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
 			List<Object> out) throws Exception {
-		// logger.debug("收到消息,开始解码消息");
 		while (in.readableBytes() > 0) {
 			byte b = in.readByte();
 			if (b != FLAG) {
@@ -119,6 +109,7 @@ public class CQTcpCodec extends ByteToMessageCodec<AbsMsg> {
 					bf.position(0);
 					bf.get(bytes);
 					if (bytes.length>0) {
+						logger.debug("接受到原始数据：" + HexStringUtil.Bytes2HexString(bytes));
 						out.add(bytes);
 					}
 					bf.clear();

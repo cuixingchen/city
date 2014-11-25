@@ -73,10 +73,12 @@ public class Msg0001 extends AbsMsg {
 		return null;
 	}
 
+	
+
 	@Override
 	public String toString() {
 		return "Msg0001 [timestamp=" + timestamp + ", validate=" + validate
-				+ ", head=" + head + "]";
+				+ ", head=" + head + ", getMsgID()=" + getMsgID() + "]";
 	}
 
 	@Override

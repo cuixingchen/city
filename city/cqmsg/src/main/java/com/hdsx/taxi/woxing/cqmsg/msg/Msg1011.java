@@ -57,6 +57,12 @@ public class Msg1011 extends AbsMsg{
 	}
 
 	@Override
+	public String toString() {
+		return "Msg1011 [lng=" + lng + ", lat=" + lat + ", bcdtime=" + bcdtime
+				+ ", head=" + head + ", getMsgID()=" + getMsgID() + "]";
+	}
+
+	@Override
 	protected boolean bodyfrombytes(byte[] b) {
 		
 		try {

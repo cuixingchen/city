@@ -22,9 +22,6 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)
 			throws Exception {
-		// if (logger.isDebugEnabled()) {
-		//			logger.debug("channelRead(ChannelHandlerContext, Object) - start"); //$NON-NLS-1$
-		// }
 
 		try {
 			if (msg instanceof byte[]) {
@@ -43,29 +40,22 @@ public class TcpHandler extends ChannelInboundHandlerAdapter {
 			ReferenceCountUtil.release(msg);
 		}
 
-		// if (logger.isDebugEnabled()) {
-		//			logger.debug("channelRead(ChannelHandlerContext, Object) - end"); //$NON-NLS-1$
-		// }
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		// if (logger.isDebugEnabled()) {
-		//			logger.debug("channelActive(ChannelHandlerContext) - start"); //$NON-NLS-1$
-		// }
 
 		super.channelActive(ctx);
+		logger.info("-------------临时连接建立--------------");
 		TcpClient.getInstance().setChtx(ctx);
 		TcpClient.getInstance().login();
 
-		// if (logger.isDebugEnabled()) {
-		//			logger.debug("channelActive(ChannelHandlerContext) - end"); //$NON-NLS-1$
-		// }
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		super.channelInactive(ctx);
+		logger.info("-------------连接断开--------------");
 		TcpClient.getInstance().getChtx().close();
 		TcpClient.getInstance().setConnstate(0);
 	}

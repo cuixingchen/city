@@ -160,7 +160,9 @@ public class Msg2010 extends AbsMsg {
 
 	@Override
 	public String toString() {
-		return "Msg2010 [list=" + list + "]";
+		return "Msg2010 [list=" + list + ", head=" + head + ", getMsgID()="
+				+ getMsgID() + "]";
 	}
+
 
 }

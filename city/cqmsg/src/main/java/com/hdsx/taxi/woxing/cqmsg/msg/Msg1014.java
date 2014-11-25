@@ -42,6 +42,12 @@ public class Msg1014 extends AbsMsg {
 	// }
 
 	@Override
+	public String toString() {
+		return "Msg1014 [payment=" + payment + ", desc=" + desc + ", head="
+				+ head + ", getMsgID()=" + getMsgID() + "]";
+	}
+
+	@Override
 	protected byte[] bodytoBytes() {
 		ByteBuffer b = ByteBuffer.allocate(1024); // 1 kb 缓冲区
 

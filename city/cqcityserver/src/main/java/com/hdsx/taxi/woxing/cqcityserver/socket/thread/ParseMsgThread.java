@@ -45,8 +45,12 @@ public class ParseMsgThread extends Thread {
 			// 生成消息
 			AbsMsg msg = MsgFactory.genMsg(head);
 			msg.fromBytes(rpb);
+			logger.debug("接收到数据解码后："+msg.toString());
 			int msgid = msg.getHeader().getMsgid();
 			if (msgid != MessageID.msg0x2010) {
+				if(logger.isInfoEnabled()){
+					logger.info("接收到数据解码后："+msg.toString());
+				}
 				TcpClient.getInstance().sendAnsworMsg(msg);
 			}
 			IHandler handler = HandlerFactory.getHandler(msg);

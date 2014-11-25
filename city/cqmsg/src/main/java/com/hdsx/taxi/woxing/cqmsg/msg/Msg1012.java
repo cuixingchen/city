@@ -45,6 +45,13 @@ public class Msg1012 extends AbsMsg {
 	// }
 
 	@Override
+	public String toString() {
+		return "Msg1012 [bcdtime=" + bcdtime + ", lng=" + lng + ", lat=" + lat
+				+ ", desc=" + desc + ", head=" + head + ", getMsgID()="
+				+ getMsgID() + "]";
+	}
+
+	@Override
 	protected byte[] bodytoBytes() {
 
 		ByteBuffer b = ByteBuffer.allocate(1024); // 1 kb 缓冲区
